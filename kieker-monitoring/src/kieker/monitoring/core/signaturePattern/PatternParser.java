@@ -309,15 +309,14 @@ public final class PatternParser {
          return "";
       } else {
          try {
-            int index = retType.indexOf('[');
+            final int index = retType.indexOf('[');
             if (index != -1) {
-               String onlyIdentified = retType.substring(0, index);
-               String arrayParenthesis = retType.substring(index).replace("[", "\\[").replace("]", "\\]");
-               return PatternParser.parseFQType(onlyIdentified) + arrayParenthesis + "\\s";
+               final String onlyIdentified = retType.substring(0, index);
+               final String onlyArrayParenthesis = retType.substring(index).replace("[", "\\[").replace("]", "\\]");
+               return PatternParser.parseFQType(onlyIdentified) + onlyArrayParenthesis + "\\s";
             } else {
                return PatternParser.parseFQType(retType) + "\\s";
             }
-
          } catch (final InvalidPatternException ex) {
             throw new InvalidPatternException("Invalid return type.", ex);
          }
