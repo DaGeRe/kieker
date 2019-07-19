@@ -239,6 +239,17 @@ public final class PatternParser {
       return sb.toString();
    }
 
+   private static final String parseType(final String type) throws InvalidPatternException {
+      final int index = type.indexOf('[');
+      if (index != -1) {
+         final String onlyIdentified = type.substring(0, index);
+         final String onlyArrayParenthesis = type.substring(index).replace("[", "\\[").replace("]", "\\]");
+         return PatternParser.parseIdentifier(onlyIdentified) + onlyArrayParenthesis;
+      } else {
+         return PatternParser.parseIdentifier(type);
+      }
+   }
+
    private static final String parseIdentifier(final String identifier) throws InvalidPatternException {
       final char[] array = identifier.toCharArray();
       final StringBuilder sb = new StringBuilder(128);
@@ -269,7 +280,7 @@ public final class PatternParser {
       final int length = array.length;
       if (length == 1) {
          try {
-            return PatternParser.parseIdentifier(fqType);
+            return PatternParser.parseType(fqType);
          } catch (final InvalidPatternException ex) {
             throw new InvalidPatternException("Invalid fully qualified type.", ex);
          }
@@ -288,7 +299,7 @@ public final class PatternParser {
             sb.append("(([\\p{javaJavaIdentifierPart}\\.])*\\.)?");
          } else {
             try {
-               sb.append(PatternParser.parseIdentifier(array[i]));
+               sb.append(PatternParser.parseType(array[i]));
             } catch (final InvalidPatternException ex) {
                throw new InvalidPatternException("Invalid fully qualified type.", ex);
             }
@@ -296,7 +307,7 @@ public final class PatternParser {
          }
       }
       try {
-         sb.append(PatternParser.parseIdentifier(array[length - 1]));
+         sb.append(PatternParser.parseType(array[length - 1]));
       } catch (final InvalidPatternException ex) {
          final InvalidPatternException newEx = new InvalidPatternException("Invalid fully qualified type.");
          throw (InvalidPatternException) newEx.initCause(ex);
