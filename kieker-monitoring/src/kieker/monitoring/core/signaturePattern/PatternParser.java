@@ -325,7 +325,7 @@ public final class PatternParser {
    }
 
    private static final Map<String, Integer> allowedModifiersWithOrder = new HashMap<String, Integer>(); // NOPMD (no conc. access)
-   {
+   static {
       allowedModifiersWithOrder.put("public", 0);
       allowedModifiersWithOrder.put("private", 0);
       allowedModifiersWithOrder.put("protected", 0);
