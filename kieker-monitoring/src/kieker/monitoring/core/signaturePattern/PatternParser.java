@@ -320,14 +320,7 @@ public final class PatternParser {
          return "";
       } else {
          try {
-            final int index = retType.indexOf('[');
-            if (index != -1) {
-               final String onlyIdentified = retType.substring(0, index);
-               final String onlyArrayParenthesis = retType.substring(index).replace("[", "\\[").replace("]", "\\]");
-               return PatternParser.parseFQType(onlyIdentified) + onlyArrayParenthesis + "\\s";
-            } else {
-               return PatternParser.parseFQType(retType) + "\\s";
-            }
+            return PatternParser.parseFQType(retType) + "\\s";
          } catch (final InvalidPatternException ex) {
             throw new InvalidPatternException("Invalid return type.", ex);
          }
