@@ -369,6 +369,18 @@ public class TestPatternParser extends AbstractKiekerTest {
       final Pattern patternDoubleArray = PatternParser.parseToPattern("public void package.Class.method(byte[][])");
       Assert.assertTrue(patternDoubleArray.matcher(signatureDoubleArray).matches());
    }
+   
+   @Test
+   public void testInnerClass() throws InvalidPatternException {
+      final String signatureInner = "public void package.Class$InnnerClass.methodA()";
+      final Pattern patternInner = PatternParser.parseToPattern("public void package.Class$InnnerClass.methodA()");
+      System.out.println(patternInner);
+      Assert.assertTrue(patternInner.matcher(signatureInner).matches());
+      
+      final String signatureDoubleInner = "public void package.Class$InnnerClass$InnerClassB.methodB()";
+      final Pattern patternDoubleInner = PatternParser.parseToPattern("public void package.Class$InnnerClass$InnerClassB.methodB()");
+      Assert.assertTrue(patternDoubleInner.matcher(signatureDoubleInner).matches());
+   }
 
    @Test
    public void constructorTest() throws InvalidPatternException {
