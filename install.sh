@@ -1,1 +1,1 @@
-./gradlew install -x test -x checkThreshold
+./gradlew install -x test -x checkThreshold -x apidoc -x htmlQualityReport
