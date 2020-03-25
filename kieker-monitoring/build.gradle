@@ -5,7 +5,7 @@ configurations {
 	ajc
 }
 
-def aspectjVersion = '1.8.2'
+def aspectjVersion = '1.9.5'
 
 repositories { jcenter() }
 
@@ -64,6 +64,11 @@ dependencies {
 	// this project depends on the tests of kieker-common, e.g., it requires the class AbstractKiekerTest
 	testCompile project (path: ':kieker-common', configuration: 'testArchives')
 	testCompile resolveLibrary('framework-libs/spring/spring-beans-*.jar')
+	
+	compile group: 'com.sun.xml.ws', name: 'jaxws-rt', version: '2.3.2', ext: 'pom'
+	compile group: 'javax.jws', name: 'javax.jws-api', version: '1.1'
+
+
 
 	testRuntime resolveLibrary('framework-libs/spring/spring-expression-*.jar')
 
@@ -111,6 +116,4 @@ task iajc(dependsOn: classes) {
     }   
 }
 
-compileJava.doLast {
-    tasks.iajc.execute()
-}
+compileJava.mustRunAfter('iajc')

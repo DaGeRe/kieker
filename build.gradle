@@ -7,7 +7,7 @@ buildscript {
 
     dependencies {
         classpath 'gradle.plugin.gradle-plugins:jartest:1.0.1'            // necessary to depend tests on tests
-        classpath 'com.bmuschko:gradle-clover-plugin:2.2.0'
+        classpath 'com.bmuschko:gradle-clover-plugin:2.2.5'
     }
 }
 
@@ -55,18 +55,6 @@ clover {
 allprojects {
     version = kiekerVersion
 
-    /*
-     * This task should only be executed when updating to a
-     * newer Gradle version. Note that manual changes to the
-     * previous scripts will need to be merged to the new
-     * wrapper script manually. Note that this tasks also
-     * creates/updates the wrapper scripts in subdirectories.
-     * */
-    task wrapper(type: Wrapper) {
-        description = 'Downloads the Gradle wrapper scripts.'
-        gradleVersion = '3.3'
-    }
-
     repositories {    // must be above subprojects {}
         mavenCentral()
         jcenter() // for mockito
@@ -77,8 +65,8 @@ subprojects {
     apply plugin: 'java'
     apply plugin: 'com.bmuschko.clover'
 
-    sourceCompatibility = 1.7
-    targetCompatibility = 1.7
+    sourceCompatibility = 1.8
+    targetCompatibility = 1.8
 
     // Encoding should be UTF-8
     compileJava.options.encoding = 'UTF-8'
