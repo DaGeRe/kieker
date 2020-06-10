@@ -7,7 +7,7 @@ buildscript {
 
     dependencies {
         classpath 'gradle.plugin.gradle-plugins:jartest:1.0.1'            // necessary to depend tests on tests
-        classpath 'com.bmuschko:gradle-clover-plugin:2.2.0'
+        classpath 'com.bmuschko:gradle-clover-plugin:2.2.5'
     }
 }
 
@@ -55,18 +55,6 @@ clover {
 allprojects {
     version = kiekerVersion
 
-    /*
-     * This task should only be executed when updating to a
-     * newer Gradle version. Note that manual changes to the
-     * previous scripts will need to be merged to the new
-     * wrapper script manually. Note that this tasks also
-     * creates/updates the wrapper scripts in subdirectories.
-     * */
-    task wrapper(type: Wrapper) {
-        description = 'Downloads the Gradle wrapper scripts.'
-        gradleVersion = '3.3'
-    }
-
     repositories {    // must be above subprojects {}
         mavenCentral()
         jcenter() // for mockito
@@ -77,8 +65,8 @@ subprojects {
     apply plugin: 'java'
     apply plugin: 'com.bmuschko.clover'
 
-    sourceCompatibility = 1.7
-    targetCompatibility = 1.7
+    sourceCompatibility = 11
+    targetCompatibility = 11
 
     // Encoding should be UTF-8
     compileJava.options.encoding = 'UTF-8'
@@ -164,16 +152,6 @@ subprojects {
         configDir = rootProject.file(dirConfig)
     }
 
-    apply plugin: 'findbugs'
-    findbugs {
-        toolVersion = fbVersion
-        ignoreFailures = true
-        effort = "max"
-        reportLevel = "low"
-
-        excludeFilter = resolveRelativeToParent(dirConfig, 'fb-filter.xml')
-    }
-
     tasks.withType(Pmd) {
         reports {
             xml.enabled = true
@@ -191,19 +169,9 @@ subprojects {
         }
     }
 
-    tasks.withType(FindBugs) {
-        reports {
-            xml.enabled = true
-            html.enabled = false // Can only enable either xml OR html
-        }
-    }
-
     // Those are some dependencies which are needed by all subprojects
     dependencies {
         checkstyle project(':kieker-checkstyle-extension')
-
-        // compile-time dependency due to the annotation SuppressFBWarnings()
-        compile "com.google.code.findbugs:findbugs:${fbVersion}"
 
         compile 'org.slf4j:slf4j-api:1.7.25'
 
@@ -344,20 +312,6 @@ checkSubprojects.each { project ->
                 }
                 // End Checkstyle report parsing
 
-                // Begin Findbugs report parsing
-                def fbErrors = 0
-                def fbWarnings = 0
-                def fbInfos = 0
-
-                reportTypes.each { String type ->
-                    def reportFile = file(p.projectDir.path + '/build/reports/findbugs/' + type + '.xml')
-                    def reportResults = parseFindbugsReport(reportFile)
-                    fbErrors += reportResults[0]
-                    fbWarnings += reportResults[1]
-                    fbInfos += reportResults[2]
-                }
-                // End Findbugs report parsing
-
                 // Begin PMD report parsing
                 def pmdErrors = 0
                 def pmdWarnings = 0
@@ -380,11 +334,6 @@ checkSubprojects.each { project ->
                 println("  Warnings: " + csWarnings + " (Threshold: " + checkstyleWarningThreshold + ")")
                 println("  Info: " + csInfos)
                 println()
-                println(" Findbugs:")
-                println("  Errors: " + fbErrors + " (Threshold: " + findbugsErrorThreshold + ")")
-                println("  Warnings: " + fbWarnings + " (Threshold: " + findbugsWarningThreshold + ")")
-                println("  Info: " + fbInfos)
-                println()
                 println(" PMD:")
                 println("  Errors: " + pmdErrors + " (Threshold: " + pmdErrorThreshold + ")")
                 println("  Warnings: " + pmdWarnings + " (Threshold: " + pmdWarningThreshold + ")")
@@ -400,15 +349,6 @@ checkSubprojects.each { project ->
 
                 if (csErrors > Integer.valueOf(checkstyleErrorThreshold)) {
                     throw new GradleException("There were checkstyle errors exceeding the error threshold! Errors: " + csErrors + " Threshold: " + checkstyleErrorThreshold + "." + eclipseUserHint)
-                }
-
-                // Fail build if Findbugs thresholds are violated
-                if (fbWarnings > Integer.valueOf(findbugsWarningThreshold)) {
-                    throw new GradleException("There were findbugs warnings exceeding the warning threshold! Warnings: " + fbWarnings + " Threshold: " + findbugsWarningThreshold + ".")
-                }
-
-                if (fbErrors > Integer.valueOf(findbugsErrorThreshold)) {
-                    throw new GradleException("There were findbugs errors exceeding the error threshold! Errors: " + fbErrors + " Threshold: " + findbugsErrorThreshold + ".")
                 }
 
                 // Fail build if PMD thresholds are violated

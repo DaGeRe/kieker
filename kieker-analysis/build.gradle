@@ -1,8 +1,8 @@
 apply plugin: 'eclipse'
 apply plugin: 'com.github.hauner.jarTest'
 
-sourceCompatibility = 1.8
-targetCompatibility = 1.8
+sourceCompatibility = 1.11
+targetCompatibility = 1.11
 
 configurations {
 	emfJarConfig	// all dependencies in this config are included into the emf jar. This is necessary for the scripts in bin/ to work.
@@ -35,6 +35,8 @@ dependencies {
 	testCompile project (path: ':kieker-common', configuration: 'testArchives')
 	
 	testRuntime 'org.apache.derby:derby:10.12.1.1'	// (10.13.1.1 and above require Java 8)
+
+	compile group: 'javax.xml.bind', name: 'jaxb-api', version: '2.3.0'
 }
 
 

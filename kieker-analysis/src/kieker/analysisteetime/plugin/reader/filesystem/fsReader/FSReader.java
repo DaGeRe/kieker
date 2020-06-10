@@ -26,7 +26,6 @@ import kieker.common.record.IMonitoringRecord;
 import kieker.common.record.misc.EmptyRecord;
 import kieker.common.util.filesystem.FSUtil;
 
-import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import teetime.framework.AbstractProducerStage;
 
 /**
@@ -85,7 +84,6 @@ public class FSReader extends AbstractProducerStage<IMonitoringRecord> implement
 	}
 
 	@Override
-	@SuppressFBWarnings("NN_NAKED_NOTIFY")
 	protected void execute() {
 		// start all reader
 		int notInitializesReaders = 0;
@@ -131,7 +129,6 @@ public class FSReader extends AbstractProducerStage<IMonitoringRecord> implement
 	}
 
 	@Override
-	@SuppressFBWarnings("WA_NOT_IN_LOOP")
 	public boolean newMonitoringRecord(final IMonitoringRecord record) {
 		synchronized (record) { // with read()
 			synchronized (this.recordQueue) { // with read()
