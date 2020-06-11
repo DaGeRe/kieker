@@ -92,7 +92,7 @@ task iajc(dependsOn: classes) {
     doLast {
         ant.taskdef(
         	resource: 'org/aspectj/tools/ant/taskdefs/aspectjTaskdefs.properties',
-            classpath: configurations.ajc.asPath
+	        classpath: configurations.ajc.asPath
         )
         ant.iajc(
         	XlintFile: 'aspectjXlint.properties', 
@@ -100,11 +100,11 @@ task iajc(dependsOn: classes) {
         	source: sourceCompatibility, 
         	target: targetCompatibility, 
         	debug: 'true', 
-        	destdir: sourceSets.main.output.classesDir) {
+        	destdir: sourceSets.main.output.classesDirs) {
 
         	classpath {
         		pathElement(location: configurations.compile.asPath)
-        		pathElement(location: sourceSets.main.output.classesDir)
+			pathElement(location: sourceSets.main.output.classesDirs.getSingleFile() )
         	}
 
             sourceroots {
@@ -115,7 +115,7 @@ task iajc(dependsOn: classes) {
     }   
 }
 
-compileJava.mustRunAfter('iajc')
+compileJava.finalizedBy iajc
 //compileJava.doLast {
 //    tasks.iajc.execute()
 //}
