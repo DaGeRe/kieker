@@ -100,7 +100,7 @@ task iajc(dependsOn: classes) {
         	source: sourceCompatibility, 
         	target: targetCompatibility, 
         	debug: 'true', 
-        	destdir: sourceSets.main.output.classesDirs) {
+        	destdir: sourceSets.main.output.classesDirs.getSingleFile()) {
 
         	classpath {
         		pathElement(location: configurations.compile.asPath)
