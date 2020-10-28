@@ -6,6 +6,7 @@
 **/\?/**
 **/.settings/edu.umd.cs.findbugs.core.prefs
 **/.settings/org.eclipse.buildship.core.prefs
+kieker-documentation/userguide/
 .project
 .classpath
 build-eclipse/

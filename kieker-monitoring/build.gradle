@@ -5,7 +5,7 @@ configurations {
 	ajc
 }
 
-def aspectjVersion = '1.8.2'
+def aspectjVersion = '1.9.5'
 
 repositories {
 	jcenter()
@@ -63,6 +63,9 @@ dependencies {
 
 	compile 'org.objenesis:objenesis:2.2'
 	
+	compile 'jakarta.xml.ws:jakarta.xml.ws-api:2.3.3'
+	compile 'com.sun.xml.ws:jaxws-rt:2.3.3'
+
 	compile 'org.easymock:easymock:3.4'
 	compile 'org.mockito:mockito-core:2.8.9' 
 	compile 'org.powermock:powermock-api-mockito2:1.7.+'
@@ -123,6 +126,7 @@ task iajc(dependsOn: classes) {
     }   
 }
 
-compileJava.doLast {
-    tasks.iajc.execute()
-}
+iajc.shouldRunAfter compileJava
+/*compileJava.doLast {
+    tasks.iajc()
+}*/
