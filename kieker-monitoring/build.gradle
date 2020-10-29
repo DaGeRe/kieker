@@ -9,14 +9,14 @@ def aspectjVersion = '1.9.6'
 
 repositories {
 	jcenter()
-	maven { url "https://mvnrepository.com/artifact/org.powermock/powermock-api-mockito2" }
 }
 
 
 dependencies {
 	clover 'org.openclover:clover:4.2.0'
 
-	compile project(':kieker-common')
+	implementation project(':kieker-common')
+	runtime project(':kieker-common')
 	
 	compile 'com.rabbitmq:amqp-client:4.2.1'
 	compile resolveLibrary('javax.jms-*.jar')
@@ -100,33 +100,42 @@ eclipse {
 }
 
 task iajc(dependsOn: classes) {
+/*    doFirst {
+	println "HereXXX"
+	configurations.compile.each{println it}
+	println "HereYYY"
+	sourceSets.main.output.classesDirs.each{println it}
+    }*/
     doLast {
         ant.taskdef(
         	resource: 'org/aspectj/tools/ant/taskdefs/aspectjTaskdefs.properties',
-            classpath: configurations.ajc.asPath
+            	classpath: configurations.ajc.asPath
         )
+	println "Configurations: " + configurations.compile.asPath
+	println "SourceSets: " + sourceSets.main.output.classesDirs.asPath
         ant.iajc(
         	XlintFile: 'aspectjXlint.properties', 
         	X: 'joinpoints:synchronization', 
         	source: sourceCompatibility, 
         	target: targetCompatibility, 
         	debug: 'true', 
-        	destdir: sourceSets.main.output.classesDirs) {
+        	destdir: sourceSets.main.output.classesDirs[0]) {
 
-        	classpath {
+        		classpath {
         		pathElement(location: configurations.compile.asPath)
-        		pathElement(location: sourceSets.main.output.classesDirs)
-        	}
+			pathElement(path: "../kieker-common/build/classes/java/main/")
+        		pathElement(path: sourceSets.main.output.classesDirs[0])
+        		}
 
-            sourceroots {
-                pathElement(location: 'src/kieker/monitoring/probe/aspectj')
-            }
+            		sourceroots {
+                	pathElement(location: 'src/kieker/monitoring/probe/aspectj')
+            		}
            
-        }
+        	}
     }   
 }
 
-iajc.shouldRunAfter compileJava
+compileJava.finalizedBy iajc
 /*compileJava.doLast {
     tasks.iajc()
 }*/
