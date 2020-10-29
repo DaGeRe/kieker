@@ -99,20 +99,13 @@ eclipse {
 	}
 }
 
+
 task iajc(dependsOn: classes) {
-/*    doFirst {
-	println "HereXXX"
-	configurations.compile.each{println it}
-	println "HereYYY"
-	sourceSets.main.output.classesDirs.each{println it}
-    }*/
     doLast {
         ant.taskdef(
         	resource: 'org/aspectj/tools/ant/taskdefs/aspectjTaskdefs.properties',
             	classpath: configurations.ajc.asPath
         )
-	println "Configurations: " + configurations.compile.asPath
-	println "SourceSets: " + sourceSets.main.output.classesDirs.asPath
         ant.iajc(
         	XlintFile: 'aspectjXlint.properties', 
         	X: 'joinpoints:synchronization', 
@@ -136,6 +129,7 @@ task iajc(dependsOn: classes) {
 }
 
 compileJava.finalizedBy iajc
-/*compileJava.doLast {
-    tasks.iajc()
-}*/
+
+jar.configure{
+	dependsOn("iajc")
+}
