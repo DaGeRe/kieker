@@ -1,0 +1,105 @@
+10:24:48.061 [main] INFO  k.m.probe.aspectj.AspectJLoader - Using Kieker's AspectJLoader. This is not recommended for multi-classloader environments such as JavaEE and OSGI. Use the additional VM parameter '-D kieker.monitoring.skipDefaultAOPConfiguration=true'. to disable Kieker's AspectJLoader
+10:24:48.085 [main] INFO  k.m.probe.aspectj.AspectJLoader - No AspectJ configuration file found. Using Kieker's default AspectJ configuration file (jar:file:/home/reichelt/workspaces/dissworkspace/kieker/kieker-examples/monitoring/probe-aspectj/lib/kieker-1.15-SNAPSHOT-aspectj.jar!/META-INF/aop.example.xml).
+10:24:48.727 [main] INFO  k.m.c.c.ConfigurationFactory - Loading properties from properties file in classpath: 'META-INF/kieker.monitoring.properties'
+10:24:48.727 [main] WARN  k.m.c.c.ConfigurationFactory - File 'META-INF/kieker.monitoring.properties' not found in classpath
+10:24:48.738 [main] INFO  k.m.core.controller.TCPController - Could not parse port for the TCPController, deactivating this option. Received string was: 
+10:24:48.800 [main] INFO  k.m.core.controller.StateController - Enabling monitoring
+10:24:48.807 [main] INFO  k.m.c.c.MonitoringController - Current State of kieker.monitoring (1.15-SNAPSHOT) Status: 'enabled'
+	Name: 'KIEKER-SINGLETON'; Hostname: 'reichelt-desktop'; experimentID: '1'
+JMXController: JMX disabled
+TimeSource: 'kieker.monitoring.timer.SystemNanoTimer'
+	Time in nanoseconds (with nanoseconds precision) since Thu Jan 01 01:00:00 CET 1970'
+ProbeController: disabled
+WriterController:
+	Queue type: class kieker.monitoring.queue.BlockingQueueDecorator
+	Queue capacity: 10000
+	Insert behavior (a.k.a. QueueFullBehavior): class kieker.monitoring.queue.behavior.BlockOnFailedInsertBehavior
+		numBlocked: 0
+Writer: 'kieker.monitoring.writer.filesystem.FileWriter'
+	Configuration:
+		kieker.monitoring.writer.filesystem.FileWriter.mapFileHandler='kieker.monitoring.writer.filesystem.TextMapFileHandler'
+		kieker.monitoring.writer.filesystem.FileWriter.maxEntriesInFile='25000'
+		kieker.monitoring.writer.filesystem.FileWriter.logStreamHandler='kieker.monitoring.writer.filesystem.TextLogStreamHandler'
+		kieker.monitoring.writer.filesystem.FileWriter.flush='false'
+		kieker.monitoring.writer.filesystem.FileWriter.logFilePoolHandler='kieker.monitoring.writer.filesystem.RotatingLogFilePoolHandler'
+		kieker.monitoring.writer.filesystem.FileWriter.maxLogFiles='-1'
+		kieker.monitoring.writer.filesystem.FileWriter.customStoragePath='monitoring-logs'
+		kieker.monitoring.writer.filesystem.FileWriter.charsetName='UTF-8'
+		kieker.monitoring.writer.filesystem.FileWriter.maxLogSize='-1'
+		kieker.monitoring.writer.filesystem.FileWriter.actualStoragePath='monitoring-logs/kieker-20201029-092448-3594001071433-UTC--KIEKER-SINGLETON'
+
+	Automatic assignment of logging timestamps: 'true'
+Sampling Controller: Periodic Sensor available: Poolsize: '0'; Scheduled Tasks: '0'
+10:24:48.869 [Thread-2] INFO  k.m.c.c.MonitoringController - ShutdownHook notifies controller to initiate shutdown.
+10:24:48.870 [Thread-2] INFO  k.m.c.c.MonitoringController - Terminating monitoring...
+10:24:48.870 [Thread-2] INFO  k.m.c.c.MonitoringController - Shutting down Monitoring Controller (KIEKER-SINGLETON)
+10:34:31.668 [main] INFO  k.m.probe.aspectj.AspectJLoader - Using Kieker's AspectJLoader. This is not recommended for multi-classloader environments such as JavaEE and OSGI. Use the additional VM parameter '-D kieker.monitoring.skipDefaultAOPConfiguration=true'. to disable Kieker's AspectJLoader
+10:34:31.693 [main] INFO  k.m.probe.aspectj.AspectJLoader - No AspectJ configuration file found. Using Kieker's default AspectJ configuration file (jar:file:/home/reichelt/workspaces/dissworkspace/kieker/kieker-examples/monitoring/probe-aspectj/lib/kieker-1.15-SNAPSHOT-aspectj.jar!/META-INF/aop.example.xml).
+10:34:32.308 [main] INFO  k.m.c.c.ConfigurationFactory - Loading properties from properties file in classpath: 'META-INF/kieker.monitoring.properties'
+10:34:32.309 [main] WARN  k.m.c.c.ConfigurationFactory - File 'META-INF/kieker.monitoring.properties' not found in classpath
+10:34:32.319 [main] INFO  k.m.core.controller.TCPController - Could not parse port for the TCPController, deactivating this option. Received string was: 
+10:34:32.365 [main] INFO  k.m.core.controller.StateController - Enabling monitoring
+10:34:32.370 [main] INFO  k.m.c.c.MonitoringController - Current State of kieker.monitoring (1.15-SNAPSHOT) Status: 'enabled'
+	Name: 'KIEKER-SINGLETON'; Hostname: 'reichelt-desktop'; experimentID: '1'
+JMXController: JMX disabled
+TimeSource: 'kieker.monitoring.timer.SystemNanoTimer'
+	Time in nanoseconds (with nanoseconds precision) since Thu Jan 01 01:00:00 CET 1970'
+ProbeController: disabled
+WriterController:
+	Queue type: class kieker.monitoring.queue.BlockingQueueDecorator
+	Queue capacity: 10000
+	Insert behavior (a.k.a. QueueFullBehavior): class kieker.monitoring.queue.behavior.BlockOnFailedInsertBehavior
+		numBlocked: 0
+Writer: 'kieker.monitoring.writer.filesystem.FileWriter'
+	Configuration:
+		kieker.monitoring.writer.filesystem.FileWriter.mapFileHandler='kieker.monitoring.writer.filesystem.TextMapFileHandler'
+		kieker.monitoring.writer.filesystem.FileWriter.maxEntriesInFile='25000'
+		kieker.monitoring.writer.filesystem.FileWriter.logStreamHandler='kieker.monitoring.writer.filesystem.TextLogStreamHandler'
+		kieker.monitoring.writer.filesystem.FileWriter.flush='false'
+		kieker.monitoring.writer.filesystem.FileWriter.logFilePoolHandler='kieker.monitoring.writer.filesystem.RotatingLogFilePoolHandler'
+		kieker.monitoring.writer.filesystem.FileWriter.maxLogFiles='-1'
+		kieker.monitoring.writer.filesystem.FileWriter.customStoragePath='monitoring-logs'
+		kieker.monitoring.writer.filesystem.FileWriter.charsetName='UTF-8'
+		kieker.monitoring.writer.filesystem.FileWriter.maxLogSize='-1'
+		kieker.monitoring.writer.filesystem.FileWriter.actualStoragePath='monitoring-logs/kieker-20201029-093432-4177580361699-UTC--KIEKER-SINGLETON'
+
+	Automatic assignment of logging timestamps: 'true'
+Sampling Controller: Periodic Sensor available: Poolsize: '0'; Scheduled Tasks: '0'
+10:34:32.397 [Thread-2] INFO  k.m.c.c.MonitoringController - ShutdownHook notifies controller to initiate shutdown.
+10:34:32.398 [Thread-2] INFO  k.m.c.c.MonitoringController - Terminating monitoring...
+10:34:32.398 [Thread-2] INFO  k.m.c.c.MonitoringController - Shutting down Monitoring Controller (KIEKER-SINGLETON)
+10:49:08.058 [main] INFO  k.m.probe.aspectj.AspectJLoader - Using Kieker's AspectJLoader. This is not recommended for multi-classloader environments such as JavaEE and OSGI. Use the additional VM parameter '-D kieker.monitoring.skipDefaultAOPConfiguration=true'. to disable Kieker's AspectJLoader
+10:49:08.082 [main] INFO  k.m.probe.aspectj.AspectJLoader - No AspectJ configuration file found. Using Kieker's default AspectJ configuration file (jar:file:/home/reichelt/workspaces/dissworkspace/kieker/kieker-examples/monitoring/probe-aspectj/lib/kieker-1.15-SNAPSHOT-aspectj.jar!/META-INF/aop.example.xml).
+10:49:08.727 [main] INFO  k.m.c.c.ConfigurationFactory - Loading properties from properties file in classpath: 'META-INF/kieker.monitoring.properties'
+10:49:08.727 [main] WARN  k.m.c.c.ConfigurationFactory - File 'META-INF/kieker.monitoring.properties' not found in classpath
+10:49:08.737 [main] INFO  k.m.core.controller.TCPController - Could not parse port for the TCPController, deactivating this option. Received string was: 
+10:49:08.783 [main] INFO  k.m.core.controller.StateController - Enabling monitoring
+10:49:08.788 [main] INFO  k.m.c.c.MonitoringController - Current State of kieker.monitoring (1.15-SNAPSHOT) Status: 'enabled'
+	Name: 'KIEKER-SINGLETON'; Hostname: 'reichelt-desktop'; experimentID: '1'
+JMXController: JMX disabled
+TimeSource: 'kieker.monitoring.timer.SystemNanoTimer'
+	Time in nanoseconds (with nanoseconds precision) since Thu Jan 01 01:00:00 CET 1970'
+ProbeController: disabled
+WriterController:
+	Queue type: class kieker.monitoring.queue.BlockingQueueDecorator
+	Queue capacity: 10000
+	Insert behavior (a.k.a. QueueFullBehavior): class kieker.monitoring.queue.behavior.BlockOnFailedInsertBehavior
+		numBlocked: 0
+Writer: 'kieker.monitoring.writer.filesystem.FileWriter'
+	Configuration:
+		kieker.monitoring.writer.filesystem.FileWriter.mapFileHandler='kieker.monitoring.writer.filesystem.TextMapFileHandler'
+		kieker.monitoring.writer.filesystem.FileWriter.maxEntriesInFile='25000'
+		kieker.monitoring.writer.filesystem.FileWriter.logStreamHandler='kieker.monitoring.writer.filesystem.TextLogStreamHandler'
+		kieker.monitoring.writer.filesystem.FileWriter.flush='false'
+		kieker.monitoring.writer.filesystem.FileWriter.logFilePoolHandler='kieker.monitoring.writer.filesystem.RotatingLogFilePoolHandler'
+		kieker.monitoring.writer.filesystem.FileWriter.maxLogFiles='-1'
+		kieker.monitoring.writer.filesystem.FileWriter.customStoragePath='monitoring-logs'
+		kieker.monitoring.writer.filesystem.FileWriter.charsetName='UTF-8'
+		kieker.monitoring.writer.filesystem.FileWriter.maxLogSize='-1'
+		kieker.monitoring.writer.filesystem.FileWriter.actualStoragePath='monitoring-logs/kieker-20201029-094908-5053997915909-UTC--KIEKER-SINGLETON'
+
+	Automatic assignment of logging timestamps: 'true'
+Sampling Controller: Periodic Sensor available: Poolsize: '0'; Scheduled Tasks: '0'
+10:49:08.816 [Thread-2] INFO  k.m.c.c.MonitoringController - ShutdownHook notifies controller to initiate shutdown.
+10:49:08.817 [Thread-2] INFO  k.m.c.c.MonitoringController - Terminating monitoring...
+10:49:08.818 [Thread-2] INFO  k.m.c.c.MonitoringController - Shutting down Monitoring Controller (KIEKER-SINGLETON)

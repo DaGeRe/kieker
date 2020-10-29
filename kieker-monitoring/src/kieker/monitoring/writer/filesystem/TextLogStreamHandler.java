@@ -16,6 +16,7 @@
 package kieker.monitoring.writer.filesystem;
 
 import java.io.IOException;
+import java.nio.Buffer;
 import java.nio.CharBuffer;
 import java.nio.charset.Charset;
 
@@ -80,7 +81,7 @@ public class TextLogStreamHandler extends AbstractLogStreamHandler {
 
 		this.buffer.put(LINE_SEPARATOR);
 
-		this.buffer.flip();
+		((Buffer) this.buffer).flip();
 
 		try {
 			while (this.buffer.hasRemaining()) {

@@ -5,7 +5,7 @@ configurations {
 	ajc
 }
 
-def aspectjVersion = '1.9.5'
+def aspectjVersion = '1.9.6'
 
 repositories {
 	jcenter()
@@ -57,9 +57,9 @@ dependencies {
 	// testing
 	compile 'org.hamcrest:hamcrest-all:1.3'
 
-	compile 'org.javassist:javassist:3.24.1-GA'
+	compile 'org.javassist:javassist:3.27.0-GA'
 
-	compile 'junit:junit:4.12'
+	compile 'junit:junit:4.13.1'
 
 	compile 'org.objenesis:objenesis:2.2'
 	
@@ -111,11 +111,11 @@ task iajc(dependsOn: classes) {
         	source: sourceCompatibility, 
         	target: targetCompatibility, 
         	debug: 'true', 
-        	destdir: sourceSets.main.output.classesDir) {
+        	destdir: sourceSets.main.output.classesDirs) {
 
         	classpath {
         		pathElement(location: configurations.compile.asPath)
-        		pathElement(location: sourceSets.main.output.classesDir)
+        		pathElement(location: sourceSets.main.output.classesDirs)
         	}
 
             sourceroots {
