@@ -35,7 +35,7 @@ public class OperationExecutionAspectFull extends AbstractOperationExecutionAspe
 	}
 
 	@Override
-	@Pointcut("execution(* *(..))")
+	@Pointcut("execution(* *(..)) || execution(*.new(..))")
 	public void monitoredOperation() {
 		// Aspect Declaration (MUST be empty)
 	}

@@ -16,9 +16,14 @@
 
 package kieker.monitoring.probe.aspectj.operationExecution;
 
+import java.util.Stack;
+
+import org.aspectj.lang.JoinPoint;
 import org.aspectj.lang.ProceedingJoinPoint;
+import org.aspectj.lang.annotation.After;
 import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
+import org.aspectj.lang.annotation.Before;
 import org.aspectj.lang.annotation.Pointcut;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -46,14 +51,85 @@ public abstract class AbstractOperationExecutionAspect extends AbstractAspectJPr
 	private static final ControlFlowRegistry CFREGISTRY = ControlFlowRegistry.INSTANCE;
 	private static final SessionRegistry SESSIONREGISTRY = SessionRegistry.INSTANCE;
 
+	private ThreadLocal<Stack<OperationBeforeData>> startTimeTL = ThreadLocal.withInitial(() -> new Stack<>());
+	
 	/**
 	 * The pointcut for the monitored operations. Inheriting classes should extend the pointcut in order to find the correct executions of the methods (e.g. all
 	 * methods or only methods with specific annotations).
 	 */
 	@Pointcut
 	public abstract void monitoredOperation();
+	
+	static final class OperationBeforeData{
+		final boolean entrypoint;
+		final String hostname = VMNAME;
+		final String sessionId = SESSIONREGISTRY.recallThreadLocalSessionId();
+		final int eoi; // this is executionOrderIndex-th execution in this trace
+		final int ess; // this is the height in the dynamic call tree of this execution
+		long traceId; // traceId, -1 if entry point
+		final long tin;
+		final String signature;
+		
+		public OperationBeforeData(JoinPoint thisJoinPoint, String signature) {
+			traceId = CFREGISTRY.recallThreadLocalTraceId();
+			if (traceId == -1) {
+				entrypoint = true;
+				traceId = CFREGISTRY.getAndStoreUniqueThreadLocalTraceId();
+				CFREGISTRY.storeThreadLocalEOI(0);
+				CFREGISTRY.storeThreadLocalESS(1); // next operation is ess + 1
+				eoi = 0;
+				ess = 0;
+			} else {
+				entrypoint = false;
+				eoi = CFREGISTRY.incrementAndRecallThreadLocalEOI(); // ess > 1
+				ess = CFREGISTRY.recallAndIncrementThreadLocalESS(); // ess >= 0
+				if ((eoi == -1) || (ess == -1)) {
+					LOGGER.error("eoi and/or ess have invalid values: eoi == {} ess == {}", eoi, ess);
+					CTRLINST.terminateMonitoring();
+				}
+			}
+			tin = TIME.getTime();
+			this.signature = signature; 
+		}
+	}
 
-	@Around("monitoredOperation() && notWithinKieker()")
+	@Before("monitoredOperation() && notWithinKieker()")
+	public void beforeOperation(final JoinPoint thisJoinPoint) {
+		if (!CTRLINST.isMonitoringEnabled()) {
+			return;
+		}
+		final String signature = this.signatureToLongString(thisJoinPoint.getSignature());
+		if (!CTRLINST.isProbeActivated(signature)) {
+			return;
+		}
+		
+		startTimeTL.get().push(new OperationBeforeData(thisJoinPoint, signature));
+	}
+	
+	@After("monitoredOperation() && notWithinKieker()")
+	public void afterOperation(final JoinPoint thisJoinPoint) {
+		if (!CTRLINST.isMonitoringEnabled()) {
+			return;
+		}
+		final String signature = this.signatureToLongString(thisJoinPoint.getSignature());
+		if (!CTRLINST.isProbeActivated(signature)) {
+			return;
+		}
+		
+		long tout = TIME.getTime();
+		OperationBeforeData beforeData = startTimeTL.get().pop();
+		CTRLINST.newMonitoringRecord(new OperationExecutionRecord(signature, beforeData.sessionId, 
+				beforeData.traceId, beforeData.tin, tout, beforeData.hostname, beforeData.eoi, beforeData.ess));
+		// cleanup
+		if (beforeData.entrypoint) {
+			CFREGISTRY.unsetThreadLocalTraceId();
+			CFREGISTRY.unsetThreadLocalEOI();
+			CFREGISTRY.unsetThreadLocalESS();
+		} else {
+			CFREGISTRY.storeThreadLocalESS(beforeData.ess); // next operation is ess
+		}
+	}
+	
 	public Object operation(final ProceedingJoinPoint thisJoinPoint) throws Throwable { // NOCS (Throwable)
 		if (!CTRLINST.isMonitoringEnabled()) {
 			return thisJoinPoint.proceed();
