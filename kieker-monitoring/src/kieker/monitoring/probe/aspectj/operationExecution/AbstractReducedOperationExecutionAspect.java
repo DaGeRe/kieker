@@ -63,29 +63,8 @@ public abstract class AbstractReducedOperationExecutionAspect extends AbstractAs
       if (!CTRLINST.isProbeActivated(signature)) {
          return thisJoinPoint.proceed();
       }
-      // collect data
-      // final boolean entrypoint;
-      // final String hostname = VMNAME;
-      // final String sessionId = SESSIONREGISTRY.recallThreadLocalSessionId();
-      // final int eoi; // this is executionOrderIndex-th execution in this trace
-      final int ess; // this is the height in the dynamic call tree of this execution
-      // long traceId = CFREGISTRY.recallThreadLocalTraceId(); // traceId, -1 if entry point
-      // if (traceId == -1) {
-      // entrypoint = true;
-      // traceId = CFREGISTRY.getAndStoreUniqueThreadLocalTraceId();
-      // CFREGISTRY.storeThreadLocalEOI(0);
       CFREGISTRY.storeThreadLocalESS(1); // next operation is ess + 1
-      // eoi = 0;
-      // ess = 0;
-      // } else {
-      // entrypoint = false;
-      // eoi = CFREGISTRY.incrementAndRecallThreadLocalEOI(); // ess > 1
-      ess = CFREGISTRY.recallAndIncrementThreadLocalESS(); // ess >= 0
-      // if ((eoi == -1) || (ess == -1)) {
-      // LOGGER.error("eoi and/or ess have invalid values: eoi == {} ess == {}", eoi, ess);
-      // CTRLINST.terminateMonitoring();
-      // }
-      // }
+      final int ess = CFREGISTRY.recallAndIncrementThreadLocalESS(); // ess >= 0
       // measure before
       final long tin = TIME.getTime();
       // execution of the called method
@@ -96,14 +75,7 @@ public abstract class AbstractReducedOperationExecutionAspect extends AbstractAs
          // measure after
          final long tout = TIME.getTime();
          CTRLINST.newMonitoringRecord(new ReducedOperationExecutionRecord(signature, tin, tout, ess));
-         // cleanup
-         // if (entrypoint) {
-         // CFREGISTRY.unsetThreadLocalTraceId();
-         // CFREGISTRY.unsetThreadLocalEOI();
-         // CFREGISTRY.unsetThreadLocalESS();
-         // } else {
          CFREGISTRY.storeThreadLocalESS(ess); // next operation is ess
-         // }
       }
       return retval;
    }
