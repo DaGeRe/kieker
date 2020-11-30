@@ -24,6 +24,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import kieker.common.record.controlflow.OperationExecutionRecord;
+import kieker.common.record.controlflow.ReducedOperationExecutionRecord;
 import kieker.monitoring.core.controller.IMonitoringController;
 import kieker.monitoring.core.controller.MonitoringController;
 import kieker.monitoring.core.registry.ControlFlowRegistry;
@@ -94,7 +95,7 @@ public abstract class AbstractOperationExecutionAspect extends AbstractAspectJPr
       } finally {
          // measure after
          final long tout = TIME.getTime();
-         CTRLINST.newMonitoringRecord(new OperationExecutionRecord(signature, "1", 1, tin, tout, "HOST", -1, ess));
+         CTRLINST.newMonitoringRecord(new ReducedOperationExecutionRecord(signature, tin, tout, ess));
          // cleanup
          // if (entrypoint) {
          // CFREGISTRY.unsetThreadLocalTraceId();
