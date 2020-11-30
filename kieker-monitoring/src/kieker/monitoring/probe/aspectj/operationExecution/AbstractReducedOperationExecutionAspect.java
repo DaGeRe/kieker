@@ -43,9 +43,6 @@ public abstract class AbstractReducedOperationExecutionAspect extends AbstractAs
 
    private static final IMonitoringController CTRLINST = MonitoringController.getInstance();
    private static final ITimeSource TIME = CTRLINST.getTimeSource();
-   // private static final String VMNAME = CTRLINST.getHostname();
-   private static final ControlFlowRegistry CFREGISTRY = ControlFlowRegistry.INSTANCE;
-   // private static final SessionRegistry SESSIONREGISTRY = SessionRegistry.INSTANCE;
 
    /**
     * The pointcut for the monitored operations. Inheriting classes should extend the pointcut in order to find the correct executions of the methods (e.g. all methods or only
@@ -63,8 +60,6 @@ public abstract class AbstractReducedOperationExecutionAspect extends AbstractAs
       if (!CTRLINST.isProbeActivated(signature)) {
          return thisJoinPoint.proceed();
       }
-      CFREGISTRY.storeThreadLocalESS(1); // next operation is ess + 1
-      final int ess = CFREGISTRY.recallAndIncrementThreadLocalESS(); // ess >= 0
       // measure before
       final long tin = TIME.getTime();
       // execution of the called method
@@ -74,8 +69,7 @@ public abstract class AbstractReducedOperationExecutionAspect extends AbstractAs
       } finally {
          // measure after
          final long tout = TIME.getTime();
-         CTRLINST.newMonitoringRecord(new ReducedOperationExecutionRecord(signature, tin, tout, ess));
-         CFREGISTRY.storeThreadLocalESS(ess); // next operation is ess
+         CTRLINST.newMonitoringRecord(new ReducedOperationExecutionRecord(signature, tin, tout));
       }
       return retval;
    }

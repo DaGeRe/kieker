@@ -33,40 +33,34 @@ public class ReducedOperationExecutionRecord extends AbstractMonitoringRecord  {
 	/** Descriptive definition of the serialization size of the record. */
 	public static final int SIZE = TYPE_SIZE_STRING // OperationExecutionRecord.operationSignature
 			 + TYPE_SIZE_LONG // OperationExecutionRecord.tin
-			 + TYPE_SIZE_LONG // OperationExecutionRecord.tout
-			 + TYPE_SIZE_INT; // OperationExecutionRecord.ess
+			 + TYPE_SIZE_LONG; // OperationExecutionRecord.tout
 	
 	public static final Class<?>[] TYPES = {
 		String.class, // OperationExecutionRecord.operationSignature
 		long.class, // OperationExecutionRecord.tin
-		long.class, // OperationExecutionRecord.tout
-		int.class, // OperationExecutionRecord.ess
+		long.class // OperationExecutionRecord.tout
 	};
 	
 	/** user-defined constants. */
 	public static final String NO_OPERATION_SIGNATURE = "noOperation";
 	public static final long NO_TIMESTAMP = -1L;
-	public static final int NO_EOI_ESS = -1;
 	/** property name array. */
 	public static final String[] VALUE_NAMES = {
 		"operationSignature",
 		"tin",
 		"tout",
-		"ess",
 	};
 	
 	/** default constants. */
 	public static final String OPERATION_SIGNATURE = NO_OPERATION_SIGNATURE;
 	public static final long TIN = NO_TIMESTAMP;
 	public static final long TOUT = NO_TIMESTAMP;
-	public static final int ESS = NO_EOI_ESS;
 	private static final long serialVersionUID = -7768272829642950711L;
 	
 	/** property declarations. */
 	private final String operationSignature;
 	private final long tin;
 	private final long tout;
-	private final int ess;
 	
 	/**
 	 * Creates a new instance of this class using the given parameters.
@@ -88,11 +82,10 @@ public class ReducedOperationExecutionRecord extends AbstractMonitoringRecord  {
 	 * @param ess
 	 *            ess
 	 */
-	public ReducedOperationExecutionRecord(final String operationSignature, final long tin, final long tout, final int ess) {
+	public ReducedOperationExecutionRecord(final String operationSignature, final long tin, final long tout) {
 		this.operationSignature = operationSignature == null?NO_OPERATION_SIGNATURE:operationSignature;
 		this.tin = tin;
 		this.tout = tout;
-		this.ess = ess;
 	}
 
 
@@ -106,7 +99,6 @@ public class ReducedOperationExecutionRecord extends AbstractMonitoringRecord  {
 		this.operationSignature = deserializer.getString();
 		this.tin = deserializer.getLong();
 		this.tout = deserializer.getLong();
-		this.ess = deserializer.getInt();
 	}
 	
 	/**
@@ -117,7 +109,6 @@ public class ReducedOperationExecutionRecord extends AbstractMonitoringRecord  {
 		serializer.putString(this.getOperationSignature());
 		serializer.putLong(this.getTin());
 		serializer.putLong(this.getTout());
-		serializer.putInt(this.getEss());
 	}
 	
 	/**
@@ -173,9 +164,6 @@ public class ReducedOperationExecutionRecord extends AbstractMonitoringRecord  {
 		if (this.getTout() != castedRecord.getTout()) {
 			return false;
 		}
-		if (this.getEss() != castedRecord.getEss()) {
-			return false;
-		}
 		
 		return true;
 	}
@@ -188,7 +176,6 @@ public class ReducedOperationExecutionRecord extends AbstractMonitoringRecord  {
 		code += this.getOperationSignature().hashCode();
 		code += ((int)this.getTin());
 		code += ((int)this.getTout());
-		code += ((int)this.getEss());
 		
 		return code;
 	}
@@ -208,12 +195,6 @@ public class ReducedOperationExecutionRecord extends AbstractMonitoringRecord  {
 	}
 	
 	
-	
-	public final int getEss() {
-		return this.ess;
-	}
-	
-	
 	/**
 	 * {@inheritDoc}
 	 */
@@ -228,9 +209,6 @@ public class ReducedOperationExecutionRecord extends AbstractMonitoringRecord  {
 		
 		result += "tout = ";
 		result += this.getTout() + ", ";
-		
-		result += "ess = ";
-		result += this.getEss() + ", ";
 		
 		return result;
 	}
