@@ -62,7 +62,11 @@ public final class WriterController extends AbstractController implements IWrite
 	public static final String RECORD_QUEUE_INSERT_BEHAVIOR = "RecordQueueInsertBehavior";
 	/** The fully qualified name of the queue to be used for the records. */
 	public static final String RECORD_QUEUE_FQN = "RecordQueueFQN";
-
+   
+   public static final String QUEUE_PUT_STRATEGY = "QueuePutStrategy";
+   
+   public static final String QUEUE_TAKE_STRATEGY = "QueueTakeStrategy";
+   
 	private static final Logger LOGGER = LoggerFactory.getLogger(WriterController.class);
 	/** Monitoring Writer. */
 	private AbstractMonitoringWriter monitoringWriter; // NOPMD (so far, cannot be made final due to the
@@ -106,8 +110,8 @@ public final class WriterController extends AbstractController implements IWrite
 		if (queue instanceof BlockingQueue) {
 			this.writerQueue = (BlockingQueue<IMonitoringRecord>) queue;
 		} else {
-			final PutStrategy putStrategy = new SPBlockingPutStrategy();
-			final TakeStrategy takeStrategy = new SCBlockingTakeStrategy();
+			final PutStrategy putStrategy = newPutStrategy(configuration.getStringProperty(PREFIX + QUEUE_PUT_STRATEGY));
+			final TakeStrategy takeStrategy = newTakeStrategy(configuration.getStringProperty(PREFIX + QUEUE_TAKE_STRATEGY));
 			this.writerQueue = new BlockingQueueDecorator<>(queue, putStrategy, takeStrategy);
 		}
 
@@ -189,6 +193,30 @@ public final class WriterController extends AbstractController implements IWrite
 	//
 	// this.ringBuffer = this.disruptor.getRingBuffer();
 	// }
+	
+   private TakeStrategy newTakeStrategy(final String strategyName) {
+      try {
+         Class<?> strategyClass = Class.forName(strategyName);
+         final Constructor<? extends TakeStrategy> constructor = (Constructor<? extends TakeStrategy>) strategyClass.getConstructor();
+         return constructor.newInstance();
+      } catch (ClassNotFoundException | InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException | NoSuchMethodException | SecurityException e) {
+         LOGGER.warn("An exception occurred", e);
+         e.printStackTrace();
+         throw new IllegalStateException(e);
+      }
+   }
+   
+   private PutStrategy newPutStrategy(final String strategyName) {
+      try {
+         Class<?> strategyClass = Class.forName(strategyName);
+         final Constructor<? extends PutStrategy> constructor = (Constructor<? extends PutStrategy>) strategyClass.getConstructor();
+         return constructor.newInstance();
+      } catch (ClassNotFoundException | InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException | NoSuchMethodException | SecurityException e) {
+         LOGGER.warn("An exception occurred", e);
+         e.printStackTrace();
+         throw new IllegalStateException(e);
+      }
+   }
 
 	/**
 	 * @param queueFqn
