@@ -110,9 +110,9 @@ public final class WriterController extends AbstractController implements IWrite
 		if (queue instanceof BlockingQueue) {
 			this.writerQueue = (BlockingQueue<IMonitoringRecord>) queue;
 		} else {
-			final String takeStrategyFqn = configuration.getStringProperty(PREFIX + QUEUE_PUT_STRATEGY, "kieker.monitoring.queue.takestrategy.SCBlockingTakeStrategy");
+			final String takeStrategyFqn = configuration.getStringProperty(PREFIX + QUEUE_TAKE_STRATEGY, "kieker.monitoring.queue.takestrategy.SCBlockingTakeStrategy");
          final TakeStrategy takeStrategy= newTakeStrategy(takeStrategyFqn);
-			final String putStrategyFqn = configuration.getStringProperty(PREFIX + QUEUE_TAKE_STRATEGY, "kieker.monitoring.queue.putstrategy.SPBlockingPutStrategy");
+			final String putStrategyFqn = configuration.getStringProperty(PREFIX + QUEUE_PUT_STRATEGY, "kieker.monitoring.queue.putstrategy.SPBlockingPutStrategy");
          final PutStrategy putStrategy  = newPutStrategy(putStrategyFqn);
 			this.writerQueue = new BlockingQueueDecorator<>(queue, putStrategy, takeStrategy);
 		}
