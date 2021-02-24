@@ -29,7 +29,7 @@ public class TestBeforeAfterOperationEvent {
 	
 	@Test
 	public void testThrowingExecution() throws IOException, InterruptedException {
-		File logFolder = Util.runTestcase(OPERATION_BEFOREAFTER_PROJECT, "TestThrowingOperationExecution");
+		File logFolder = Util.runTestcase(OPERATION_BEFOREAFTER_PROJECT, "TestOperationExecutionException");
 
 		List<String> lines = Util.getLatestLogRecord(logFolder);
 		String firstSignature = lines.get(2).split(";")[5];
