@@ -16,9 +16,11 @@
 
 package kieker.monitoring.probe.aspectj.flow.constructorExecution;
 
-import org.aspectj.lang.ProceedingJoinPoint;
-import org.aspectj.lang.annotation.Around;
+import org.aspectj.lang.JoinPoint;
+import org.aspectj.lang.annotation.After;
+import org.aspectj.lang.annotation.AfterThrowing;
 import org.aspectj.lang.annotation.Aspect;
+import org.aspectj.lang.annotation.Before;
 import org.aspectj.lang.annotation.Pointcut;
 
 import kieker.common.record.flow.trace.TraceMetadata;
@@ -59,14 +61,14 @@ public abstract class AbstractAspect extends AbstractAspectJProbe { // NOPMD
 	 *
 	 * @throws Throwable
 	 */
-	@Around("monitoredConstructor() && this(thisObject) && notWithinKieker()")
-	public Object constructor(final Object thisObject, final ProceedingJoinPoint thisJoinPoint) throws Throwable { // NOCS (Throwable)
+	@Before("monitoredConstructor() && this(thisObject) && notWithinKieker()")
+	public void constructor(final Object thisObject, final JoinPoint thisJoinPoint) throws Throwable { // NOCS (Throwable)
 		if (!CTRLINST.isMonitoringEnabled()) {
-			return thisJoinPoint.proceed();
+			return;
 		}
 		final String operationSignature = this.signatureToLongString(thisJoinPoint.getSignature());
 		if (!CTRLINST.isProbeActivated(operationSignature)) {
-			return thisJoinPoint.proceed();
+			return;
 		}
 		// common fields
 		TraceMetadata trace = TRACEREGISTRY.getTrace();
@@ -79,21 +81,49 @@ public abstract class AbstractAspect extends AbstractAspectJProbe { // NOPMD
 		final String clazz = thisObject.getClass().getName();
 		// measure before execution
 		CTRLINST.newMonitoringRecord(new BeforeConstructorEvent(TIME.getTime(), traceId, trace.getNextOrderId(), operationSignature, clazz));
-		// execution of the called method
-		final Object retval;
-		try {
-			retval = thisJoinPoint.proceed();
-		} catch (final Throwable th) { // NOPMD NOCS (catch throw might ok here)
-			// measure after failed execution
-			CTRLINST.newMonitoringRecord(new AfterConstructorFailedEvent(TIME.getTime(), traceId, trace.getNextOrderId(), operationSignature, clazz, th.toString()));
-			throw th;
-		} finally {
-			if (newTrace) { // close the trace
-				TRACEREGISTRY.unregisterTrace();
-			}
+	}
+	
+	@AfterThrowing(pointcut = "monitoredConstructor()&& this(thisObject) && notWithinKieker()", throwing = "th")
+	public void afterThrowingConstructor(final Object thisObject, final JoinPoint thisJoinPoint, final Throwable th) {
+		if (!CTRLINST.isMonitoringEnabled()) {
+			return;
 		}
-		// measure after successful execution
+		final String operationSignature = this.signatureToLongString(thisJoinPoint.getSignature());
+		if (!CTRLINST.isProbeActivated(operationSignature)) {
+			return;
+		}
+		// common fields
+		TraceMetadata trace = TRACEREGISTRY.getTrace();
+		final boolean newTrace = trace == null;
+		if (newTrace) {
+			trace = TRACEREGISTRY.registerTrace();
+			CTRLINST.newMonitoringRecord(trace);
+		}
+		final long traceId = trace.getTraceId();
+		final String clazz = thisObject.getClass().getName();
+
+		CTRLINST.newMonitoringRecord(new AfterConstructorFailedEvent(TIME.getTime(), traceId, trace.getNextOrderId(), operationSignature, clazz, th.toString()));
+		
+	}
+	
+	@After("monitoredConstructor() && this(thisObject) && notWithinKieker()")
+	public void afterConstructor(final Object thisObject, final JoinPoint thisJoinPoint) {
+		if (!CTRLINST.isMonitoringEnabled()) {
+			return;
+		}
+		final String operationSignature = this.signatureToLongString(thisJoinPoint.getSignature());
+		if (!CTRLINST.isProbeActivated(operationSignature)) {
+			return;
+		}
+		// common fields
+		TraceMetadata trace = TRACEREGISTRY.getTrace();
+		final boolean newTrace = trace == null;
+		if (newTrace) {
+			trace = TRACEREGISTRY.registerTrace();
+			CTRLINST.newMonitoringRecord(trace);
+		}
+		final long traceId = trace.getTraceId();
+		final String clazz = thisObject.getClass().getName();
 		CTRLINST.newMonitoringRecord(new AfterConstructorEvent(TIME.getTime(), traceId, trace.getNextOrderId(), operationSignature, clazz));
-		return retval;
 	}
 }
