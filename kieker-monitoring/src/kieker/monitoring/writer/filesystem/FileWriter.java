@@ -17,6 +17,7 @@ package kieker.monitoring.writer.filesystem;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.OutputStream;
 import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -185,8 +186,10 @@ public class FileWriter extends AbstractMonitoringWriter implements IRegistryLis
 
 		final Path outputFile = this.logFilePoolHandler.requestFile();
 
+		OutputStream newOutputStream = Files.newOutputStream(outputFile, StandardOpenOption.CREATE_NEW, StandardOpenOption.WRITE);
+		System.out.println("Created: " + System.identityHashCode(newOutputStream));
 		this.logStreamHandler.initialize(
-				Files.newOutputStream(outputFile, StandardOpenOption.CREATE_NEW, StandardOpenOption.WRITE),
+				newOutputStream,
 				outputFile.getFileName());
 	}
 
@@ -224,8 +227,10 @@ public class FileWriter extends AbstractMonitoringWriter implements IRegistryLis
 			this.logStreamHandler.close();
 			final Path outputFile = this.logFilePoolHandler.requestFile();
 
+			OutputStream newOutputStream = Files.newOutputStream(outputFile, StandardOpenOption.CREATE_NEW, StandardOpenOption.WRITE);
+			System.out.println("Created: " + System.identityHashCode(newOutputStream));
 			this.logStreamHandler.initialize(
-					Files.newOutputStream(outputFile, StandardOpenOption.CREATE_NEW, StandardOpenOption.WRITE),
+					newOutputStream,
 					outputFile.getFileName());
 		} catch (final IOException ex) {
 			FileWriter.LOGGER.error("Switching files in logger failed.", ex);

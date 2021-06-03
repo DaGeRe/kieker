@@ -74,6 +74,7 @@ public class TextMapFileHandler implements IMapFileHandler {
 		try {
 			final Writer w = Files.newBufferedWriter(location, charset);
 			this.printWriter = new PrintWriter(w);
+			System.out.println("Creating " + System.identityHashCode(printWriter));
 		} catch (final IOException e) {
 			throw new IllegalStateException("Error on creating Kieker's mapping file.", e);
 		}
@@ -86,6 +87,7 @@ public class TextMapFileHandler implements IMapFileHandler {
 	 */
 	@Override
 	public void close() {
+		System.out.println("Closing " + System.identityHashCode(printWriter));
 		this.printWriter.close();
 	}
 
