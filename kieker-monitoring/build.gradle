@@ -42,7 +42,7 @@ dependencies {
 
 	implementation 'com.rabbitmq:amqp-client:4.2.1'
 
-	implementation 'org.jctools:jctools-core:2.1.0'
+	implementation "org.jctools:jctools-core:$libJctoolsVersion"
 	
 	ajc "org.aspectj:aspectjtools:$aspectjVersion"
 	implementation "org.aspectj:aspectjrt:$aspectjVersion"
@@ -79,7 +79,7 @@ dependencies {
 
 	testImplementation 'org.javassist:javassist:3.24.1-GA'
 
-	testImplementation 'junit:junit:4.12'
+	testImplementation "junit:junit:$junitVersion"
 
 	testImplementation 'org.objenesis:objenesis:2.2'
 	
@@ -109,7 +109,7 @@ dependencies {
 	
 	implementation group: 'com.github.oshi', name: 'oshi-core', version: '3.12.2'
 	
-	integrationTestCompile 'junit:junit:4.13'
+	integrationTestCompile "junit:junit:$junitVersion"
 }
 
 task iajc(dependsOn: classes) {

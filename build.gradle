@@ -26,8 +26,8 @@ configurations {
 
 dependencies {
     resultJar project(path: ':kieker-tools', configuration: 'resultJar')
-    resultJar 'org.jctools:jctools-core:2.1.0'
-    resultJar 'org.slf4j:slf4j-api:1.7.25'
+    resultJar "org.jctools:jctools-core:$libJctoolsVersion"
+    resultJar "org.slf4j:slf4j-api:slf4jVersion"
 
     emfJarConfig project(path: ':kieker-analysis', configuration: 'emfJarConfig')
 }
@@ -209,13 +209,13 @@ subprojects {
         // compile-time dependency due to the annotation SuppressFBWarnings()
         //implementation "com.google.code.findbugs:findbugs:${fbVersion}"
 
-        implementation 'org.slf4j:slf4j-api:1.7.25'
+        implementation "org.slf4j:slf4j-api:$slf4jVersion"
 
         // enable logging for test runs
         testImplementation 'ch.qos.logback:logback-classic:1.2.3'
 
         testImplementation 'org.mockito:mockito-core:2.8.9'
-        testImplementation 'junit:junit:4.12'
+        testImplementation "junit:junit:$junitVersion"
         testImplementation 'org.hamcrest:hamcrest-library:1.3'
     }
 
