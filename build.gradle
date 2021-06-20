@@ -581,13 +581,27 @@ configurations.archives.artifacts.with { archives ->
  * Create bundle jars.
  */
 
-task createArtifacts(dependsOn: [ 'mainJar', 'aspectJJar', 'emfJar', 'sourcesJar', 'javadocJar']) {}
+task createArtifacts(dependsOn: [ 'mainJar', 'libraryJar', 'aspectJJar', 'emfJar', 'sourcesJar', 'javadocJar']) {}
  
 /** Kieker jar without aspectj and emf. */
 task mainJar(type: Jar, dependsOn: mainSubprojects.tasks["build"], group: "build",
         description: "Assembles a jar archive containing all of Kieker's components, the user guide examples, the documentation etc."
 ) {
     classifier = 'jar'
+    // default archiveName is [baseName]-[appendix]-[version]-[classifier].[extension]
+    configure allArtifacts
+    configure licence
+    configure aopxml
+
+    manifest = project.manifest {
+        from sharedManifest
+    }
+}
+
+task libraryJar(type: Jar, dependsOn: mainSubprojects.tasks["build"], group: "build",
+        description: "Assembles a jar archive containing all of Kieker's components, the user guide examples, the documentation etc."
+) {
+    classifier = 'library'
     // default archiveName is [baseName]-[appendix]-[version]-[classifier].[extension]
     configure allArtifacts
     configure licence
@@ -907,6 +921,7 @@ publishing {
     publications {
         mavenJava(MavenPublication) {
 	    artifact mainJar
+	    artifact libraryJar
 	    artifact emfJar
 	    artifact aspectJJar
 	    artifact sourcesJar
