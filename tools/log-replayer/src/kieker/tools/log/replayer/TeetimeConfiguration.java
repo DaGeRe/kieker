@@ -15,7 +15,6 @@
  ***************************************************************************/
 package kieker.tools.log.replayer;
 
-import kieker.analysis.generic.sink.DataSink;
 import kieker.analysis.generic.time.TimestampFilter;
 import kieker.common.record.IMonitoringRecord;
 import kieker.monitoring.core.configuration.ConfigurationConstants;
@@ -26,8 +25,8 @@ import kieker.tools.log.replayer.stages.time.adjuster.BranchingRecordTimeAdjuste
 import kieker.tools.log.replayer.stages.time.adjuster.FlowEventTimeAdjuster;
 import kieker.tools.log.replayer.stages.time.adjuster.OperationExecutionRecordTimeAdjuster;
 import kieker.tools.source.LogsReaderCompositeStage;
+import kieker.tools.trace.otexporter.OpenTelemetryStage;
 
-import teetime.framework.AbstractConsumerStage;
 import teetime.framework.Configuration;
 import teetime.framework.OutputPort;
 import teetime.stage.Counter;
@@ -86,8 +85,11 @@ public class TeetimeConfiguration extends Configuration {
 
 		configuration.setProperty(ConfigurationConstants.AUTO_SET_LOGGINGTSTAMP, parameter.isTimeRelative());
 
-		final AbstractConsumerStage<IMonitoringRecord> consumer = new DataSink(configuration);
-		this.connectPorts(this.counter.getOutputPort(), consumer.getInputPort());
+		final OpenTelemetryStage otstage = new OpenTelemetryStage();
+		this.connectPorts(this.counter.getOutputPort(), otstage.getInputPort());
+
+		// final AbstractConsumerStage<IMonitoringRecord> consumer = new DataSink(configuration);
+		// this.connectPorts(this.counter.getOutputPort(), consumer.getInputPort());
 	}
 
 	public Counter<IMonitoringRecord> getCounter() {

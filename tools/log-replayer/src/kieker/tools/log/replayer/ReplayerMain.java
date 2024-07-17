@@ -15,16 +15,16 @@
  ***************************************************************************/
 package kieker.tools.log.replayer;
 
+import com.beust.jcommander.JCommander;
+
 import java.io.File;
 import java.nio.file.Path;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import com.beust.jcommander.JCommander;
-
 import kieker.tools.common.AbstractService;
 import kieker.tools.common.ParameterEvaluationUtils;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Collector main class.
@@ -42,7 +42,7 @@ public final class ReplayerMain extends AbstractService<TeetimeConfiguration, Se
 	/**
 	 * This is a simple main class which does not need to be instantiated.
 	 */
-	private ReplayerMain() {
+	public ReplayerMain() {
 
 	}
 
