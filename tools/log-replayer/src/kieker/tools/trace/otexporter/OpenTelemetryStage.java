@@ -24,52 +24,29 @@ import teetime.framework.AbstractConsumerStage;
 
 public class OpenTelemetryStage extends AbstractConsumerStage<IMonitoringRecord> {
 
-	private final Tracer tracer;
-
 	private static volatile boolean initialized = false;
-	private static final Object lock = new Object();
-
-	// private final Tracer tracer;
 
 	public OpenTelemetryStage() {
-		// Check if OpenTelemetry has already been initialized
-		if (!initialized) {
-			// Ensure thread-safety during initialization
-			synchronized (lock) {
-				// Double-check to avoid race conditions
-				if (!initialized) {
-					initializeOpenTelemetry();
-					initialized = true;
-				}
+		synchronized (OpenTelemetryStage.class) {
+			if (!initialized) {
+				createTracerProvider("kieker-data");
+				initialized = true;
 			}
 		}
-		;
-
-		// Get a tracer instance for instrumentation
-		this.tracer = GlobalOpenTelemetry.getTracer("kieker-instrumentation");
-
 	}
 
-	private void initializeOpenTelemetry() {
-		// Create a tracer provider and register it globally
-		final SdkTracerProvider tracerProvider = createTracerProvider();
-
-		OpenTelemetrySdk.builder().setTracerProvider(tracerProvider).buildAndRegisterGlobal();
-	}
-
-	private SdkTracerProvider createTracerProvider() {
-
-		// Define resource information, such as service name
+	private SdkTracerProvider createTracerProvider(final String serviceName) {
 		final Resource resource = Resource.getDefault().merge(Resource
-				.create(Attributes.builder().put(AttributeKey.stringKey("service.name"), "kieker-data").build()));
+				.create(Attributes.builder().put(AttributeKey.stringKey("service.name"), serviceName).build()));
 
-		// Create a tracer provider with a BatchSpanProcessor for exporting spans to
-		// Zipkin
-		return SdkTracerProvider.builder().setResource(resource)
+		final SdkTracerProvider sdkTracerProvider = SdkTracerProvider.builder().setResource(resource)
 				.addSpanProcessor(BatchSpanProcessor
 						.builder(ZipkinSpanExporter.builder().setEndpoint("http://localhost:9411/api/v2/spans").build())
 						.build())
 				.build();
+
+		OpenTelemetrySdk.builder().setTracerProvider(sdkTracerProvider).buildAndRegisterGlobal();
+		return sdkTracerProvider;
 	}
 
 	private int lastEss;
@@ -80,12 +57,14 @@ public class OpenTelemetryStage extends AbstractConsumerStage<IMonitoringRecord>
 		// System.out.println("Reading span: " + record);
 		if (record instanceof OperationExecutionRecord) {
 			final OperationExecutionRecord oer = (OperationExecutionRecord) record;
-			// System.out.println("OER: " + oer);
+
+			final Tracer tracer = GlobalOpenTelemetry.getTracer(oer.getHostname());
 
 			final Instant startTime = Instant.ofEpochMilli(oer.getTin());
 
 			// Start a new span for the operation
-			final SpanBuilder spanBuilder = tracer.spanBuilder(oer.getOperationSignature()).setStartTimestamp(startTime);
+			final String operationSignature = oer.getOperationSignature();
+			final SpanBuilder spanBuilder = tracer.spanBuilder(operationSignature).setStartTimestamp(startTime);
 			if (lastSpan != null && oer.getEss() > 0) {
 				spanBuilder.setParent(Context.current().with(lastSpan.peek()));
 			}
