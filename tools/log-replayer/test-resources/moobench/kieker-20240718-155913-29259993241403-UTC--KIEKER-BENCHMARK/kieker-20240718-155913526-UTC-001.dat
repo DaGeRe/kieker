@@ -1,0 +1,17 @@
+$0;1721318353536876469;2.0.0-SNAPSHOT;KIEKER-BENCHMARK;reichelt-desktop;1;false;0;NANOSECONDS;0
+$1;1721318353551383593;public moobench.application.MonitoredClassSimple.<init>();<no-session-id>;250371991784128513;1721318353551011733;1721318353551287823;reichelt-desktop;0;0
+$1;1721318384001054940;public final long moobench.application.MonitoredClassSimple.monitoredMethod(long, int);<no-session-id>;250371991784128514;1721318384001036880;1721318384001045800;reichelt-desktop;2;2
+$1;1721318384001078320;public final long moobench.application.MonitoredClassSimple.monitoredMethod(long, int);<no-session-id>;250371991784128514;1721318384001024050;1721318384001074400;reichelt-desktop;1;1
+$1;1721318384001091970;public final long moobench.application.MonitoredClassSimple.monitoredMethod(long, int);<no-session-id>;250371991784128514;1721318384000979780;1721318384001088360;reichelt-desktop;0;0
+$1;1721318384001416370;public final long moobench.application.MonitoredClassSimple.monitoredMethod(long, int);<no-session-id>;250371991784128515;1721318384001405310;1721318384001411790;reichelt-desktop;2;2
+$1;1721318384001429940;public final long moobench.application.MonitoredClassSimple.monitoredMethod(long, int);<no-session-id>;250371991784128515;1721318384001394120;1721318384001426510;reichelt-desktop;1;1
+$1;1721318384001441410;public final long moobench.application.MonitoredClassSimple.monitoredMethod(long, int);<no-session-id>;250371991784128515;1721318384001372280;1721318384001438500;reichelt-desktop;0;0
+$1;1721318384001506730;public final long moobench.application.MonitoredClassSimple.monitoredMethod(long, int);<no-session-id>;250371991784128516;1721318384001497450;1721318384001502920;reichelt-desktop;2;2
+$1;1721318384001518810;public final long moobench.application.MonitoredClassSimple.monitoredMethod(long, int);<no-session-id>;250371991784128516;1721318384001486650;1721318384001515430;reichelt-desktop;1;1
+$1;1721318384001530130;public final long moobench.application.MonitoredClassSimple.monitoredMethod(long, int);<no-session-id>;250371991784128516;1721318384001473830;1721318384001526870;reichelt-desktop;0;0
+$1;1721318384001611760;public final long moobench.application.MonitoredClassSimple.monitoredMethod(long, int);<no-session-id>;250371991784128517;1721318384001588320;1721318384001596250;reichelt-desktop;2;2
+$1;1721318384001625930;public final long moobench.application.MonitoredClassSimple.monitoredMethod(long, int);<no-session-id>;250371991784128517;1721318384001572680;1721318384001621950;reichelt-desktop;1;1
+$1;1721318384001636580;public final long moobench.application.MonitoredClassSimple.monitoredMethod(long, int);<no-session-id>;250371991784128517;1721318384001557930;1721318384001633750;reichelt-desktop;0;0
+$1;1721318384001698179;public final long moobench.application.MonitoredClassSimple.monitoredMethod(long, int);<no-session-id>;250371991784128518;1721318384001688989;1721318384001694669;reichelt-desktop;2;2
+$1;1721318384001710579;public final long moobench.application.MonitoredClassSimple.monitoredMethod(long, int);<no-session-id>;250371991784128518;1721318384001678159;1721318384001707409;reichelt-desktop;1;1
+$1;1721318384001721819;public final long moobench.application.MonitoredClassSimple.monitoredMethod(long, int);<no-session-id>;250371991784128518;1721318384001665499;1721318384001718639;reichelt-desktop;0;0

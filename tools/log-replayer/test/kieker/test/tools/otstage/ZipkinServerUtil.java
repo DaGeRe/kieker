@@ -70,7 +70,7 @@ public class ZipkinServerUtil {
 	}
 
 	public static boolean checkZipkinSpanValidity() throws IOException, InterruptedException {
-		Thread.sleep(5000);
+		Thread.sleep(10000);
 
 		// Zipkin API to check if traces were created
 		final URL url = new URL(ZIPKIN_URL + "api/v2/traces");
