@@ -15,7 +15,6 @@ import io.opentelemetry.api.trace.SpanBuilder;
 import io.opentelemetry.api.trace.Tracer;
 import io.opentelemetry.context.Context;
 import io.opentelemetry.context.Scope;
-import io.opentelemetry.exporter.otlp.http.trace.OtlpHttpSpanExporter;
 import io.opentelemetry.exporter.zipkin.ZipkinSpanExporter;
 import io.opentelemetry.sdk.OpenTelemetrySdk;
 import io.opentelemetry.sdk.resources.Resource;
@@ -56,13 +55,6 @@ public class OpenTelemetryStage extends AbstractConsumerStage<IMonitoringRecord>
 		final SdkTracerProvider tracerProvider = createTracerProvider();
 
 		OpenTelemetrySdk.builder().setTracerProvider(tracerProvider).buildAndRegisterGlobal();
-	}
-
-	private OtlpHttpSpanExporter createSpanExporter() {
-		// Create an OTLP HTTP Span Exporter
-		return OtlpHttpSpanExporter.builder().setEndpoint("http://localhost:55681/v1/traces") // 55681
-
-				.build();
 	}
 
 	private SdkTracerProvider createTracerProvider() {

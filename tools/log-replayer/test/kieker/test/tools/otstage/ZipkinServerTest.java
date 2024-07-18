@@ -1,8 +1,5 @@
 package kieker.test.tools.otstage;
 
-//import static org.junit.Assert.assertTrue;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
@@ -18,6 +15,7 @@ import kieker.tools.log.replayer.ReplayerMain;
 
 import org.junit.Assert;
 import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
@@ -102,7 +100,7 @@ public class ZipkinServerTest {
 
 		// Check Zipkin API for spans
 		final boolean spansCreated = checkZipkinForSpans();
-		assertTrue(spansCreated, "Spans should be created in Zipkin");
+		Assertions.assertTrue(spansCreated, "Spans should be created in Zipkin");
 	}
 
 	private boolean checkZipkinForSpans() throws IOException, InterruptedException {
