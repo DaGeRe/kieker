@@ -2,6 +2,7 @@ package kieker.test.tools.otstage;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -9,52 +10,33 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
-import java.util.Objects;
-
-import kieker.tools.log.replayer.ReplayerMain;
 
 import org.junit.Assert;
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class ZipkinServerTest {
-
-	private static final Logger LOGGER = LoggerFactory.getLogger(ZipkinServerTest.class);
+public class ZipkinServerUtil {
+	private static final Logger LOGGER = LoggerFactory.getLogger(ZipkinServerUtil.class);
 
 	private static final String jarPath = "test-resources/zipkin-3.4.0.jar";
+	private static final String ZIPKIN_URL = "http://localhost:9411/";
 
-	private static final String kiekerDataPath = "test-resources/";
-
-	// private static final String kiekerDataPath =
-	// "src/test/resources/kieker-20231110-131058-869910315387-UTC--KIEKER";
-
-	private Process process;
-
-	@BeforeEach
-	public void startZipkinServer() throws IOException {
+	public static Process startZipkin() throws IOException, InterruptedException {
 		LOGGER.info("Starting Zipkin");
 
 		final String command = String.format("java -jar %s", jarPath);
-		try {
-			LOGGER.info("Command: " + command);
-			process = Runtime.getRuntime().exec(command);
+		LOGGER.info("Command: " + command);
+		final Process process = Runtime.getRuntime().exec(command);
 
-			waitForZipkinStartup();
+		waitForZipkinStartup(process);
 
-			if (!process.isAlive()) {
-				throw new RuntimeException("Zipkin did not start up correctly");
-			}
-
-		} catch (IOException | InterruptedException e) {
-			e.printStackTrace();
+		if (!process.isAlive()) {
+			throw new RuntimeException("Zipkin did not start up correctly");
 		}
+		return process;
 	}
 
-	private void waitForZipkinStartup() throws IOException, InterruptedException {
+	private static void waitForZipkinStartup(final Process process) throws IOException, InterruptedException {
 		// capture and print the process output
 
 		final StringBuffer standardOut = new StringBuffer();
@@ -77,9 +59,9 @@ public class ZipkinServerTest {
 		}
 	}
 
-	private boolean checkZipkinHealth() throws IOException {
+	private static boolean checkZipkinHealth() throws IOException {
 		// Zipkin health check to ensure the server is ready
-		final URL url = new URL("http://localhost:9411/health");
+		final URL url = new URL(ZIPKIN_URL + "health");
 		final HttpURLConnection connection = (HttpURLConnection) url.openConnection();
 		connection.setRequestMethod("GET");
 
@@ -87,27 +69,11 @@ public class ZipkinServerTest {
 		return responseCode == HttpURLConnection.HTTP_OK;
 	}
 
-	@Test
-	public void test() throws IOException, InterruptedException {
-		final File[] kiekerDataFiles = Objects.requireNonNull(new java.io.File(kiekerDataPath).listFiles());
-
-		for (final File kiekerDataFile : kiekerDataFiles) {
-			if (kiekerDataFile.isDirectory()) {
-				final ReplayerMain main = new ReplayerMain();
-				main.run("Replayer", "replayer", new String[] { "--no-delay", "-i", kiekerDataFile.getAbsolutePath() });
-			}
-		}
-
-		// Check Zipkin API for spans
-		final boolean spansCreated = checkZipkinForSpans();
-		Assertions.assertTrue(spansCreated, "Spans should be created in Zipkin");
-	}
-
-	private boolean checkZipkinForSpans() throws IOException, InterruptedException {
+	public static boolean checkZipkinSpanValidity() throws IOException, InterruptedException {
 		Thread.sleep(5000);
 
 		// Zipkin API to check if traces were created
-		final URL url = new URL("http://localhost:9411/api/v2/traces");
+		final URL url = new URL(ZIPKIN_URL + "api/v2/traces");
 		final HttpURLConnection connection = (HttpURLConnection) url.openConnection();
 		connection.setRequestMethod("GET");
 
@@ -126,11 +92,15 @@ public class ZipkinServerTest {
 			response.append(inputLine);
 		}
 		in.close();
-		LOGGER.info("Zipkin traces response: " + response);
+		// LOGGER.info("Zipkin traces response: " + response);
 
 		final ObjectMapper objectMapper = new ObjectMapper();
 		try {
 			final JsonNode rootNode = objectMapper.readTree(response.toString());
+
+			objectMapper.enable(SerializationFeature.INDENT_OUTPUT);
+			objectMapper.writeValue(new File("test.json"), rootNode);
+
 			if (!rootNode.isArray() || rootNode.size() == 0) {
 				Assert.fail("No traces found in Zipkin.");
 			}
@@ -157,7 +127,7 @@ public class ZipkinServerTest {
 		return true;
 	}
 
-	private boolean isValidSpan(final JsonNode span) {
+	private static boolean isValidSpan(final JsonNode span) {
 		// Check for a non-empty name
 		if (!span.has("name") || span.get("name").asText().isEmpty()) {
 			LOGGER.error("Span name is empty.");
@@ -218,10 +188,5 @@ public class ZipkinServerTest {
 		// If all validations pass
 		// LOGGER.info("Span name and related properties are valid.");
 		return true;
-	}
-
-	@AfterEach
-	public void stopZipkinServer() {
-		process.destroyForcibly();
 	}
 }
