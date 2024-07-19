@@ -6,6 +6,7 @@ import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
+import com.fasterxml.jackson.databind.node.JsonNodeType;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -74,6 +75,24 @@ public class ZipkinServerUtil {
 		return responseCode == HttpURLConnection.HTTP_OK;
 	}
 
+	public static int getSpanCount(final JsonNode rootNode) {
+		int spans = 0;
+		for (final JsonNode node : rootNode) {
+			System.out.println(node.getNodeType() + " " + node);
+			if (node.getNodeType() == JsonNodeType.ARRAY) {
+				spans += getSpanCount(node);
+			} else if (node.getNodeType() == JsonNodeType.OBJECT) {
+				final JsonNode traceId = node.get("traceId");
+				final JsonNode id = node.get("id");
+				final JsonNode name = node.get("name");
+				if (traceId != null && id != null && name != null) {
+					spans += 1;
+				}
+			}
+		}
+		return spans;
+	}
+
 	public static boolean checkTreeValidity(final JsonNode rootNode) {
 		if (!rootNode.isArray() || rootNode.size() == 0) {
 			Assert.fail("No traces found in Zipkin.");
@@ -116,7 +135,6 @@ public class ZipkinServerUtil {
 			response.append(inputLine);
 		}
 		in.close();
-		// LOGGER.info("Zipkin traces response: " + response);
 
 		final ObjectMapper objectMapper = new ObjectMapper();
 		final JsonNode rootNode = objectMapper.readTree(response.toString());

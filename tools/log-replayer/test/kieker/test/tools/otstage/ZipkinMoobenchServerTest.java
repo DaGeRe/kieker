@@ -35,12 +35,16 @@ public class ZipkinMoobenchServerTest {
 		Thread.sleep(10000);
 
 		final JsonNode rootNode = ZipkinServerUtil.readRootNode();
+
 		final boolean spansCreated = ZipkinServerUtil.checkTreeValidity(rootNode);
 		Assertions.assertTrue(spansCreated, "Spans should be created in Zipkin");
+
+		final int spans = ZipkinServerUtil.getSpanCount(rootNode);
+		Assertions.assertEquals(16, spans);
 	}
 
 	@Test
-	public void test51Operations() throws IOException, InterruptedException {
+	public void test101Operations() throws IOException, InterruptedException {
 		final File[] kiekerDataFiles = Objects.requireNonNull(new java.io.File("test-resources/moobench-2").listFiles());
 
 		for (final File kiekerDataFile : kiekerDataFiles) {
@@ -50,10 +54,15 @@ public class ZipkinMoobenchServerTest {
 			}
 		}
 
+		Thread.sleep(10000);
+
 		// Check Zipkin API for spans
 		final JsonNode rootNode = ZipkinServerUtil.readRootNode();
 		final boolean spansCreated = ZipkinServerUtil.checkTreeValidity(rootNode);
 		Assertions.assertTrue(spansCreated, "Spans should be created in Zipkin");
+
+		final int spans = ZipkinServerUtil.getSpanCount(rootNode);
+		Assertions.assertEquals(101, spans);
 	}
 
 	@AfterEach
