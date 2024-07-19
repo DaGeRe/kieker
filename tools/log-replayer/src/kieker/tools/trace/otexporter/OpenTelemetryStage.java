@@ -1,7 +1,7 @@
 package kieker.tools.trace.otexporter;
 
-import java.time.Instant;
 import java.util.Stack;
+import java.util.concurrent.TimeUnit;
 
 import kieker.common.record.IMonitoringRecord;
 import kieker.common.record.controlflow.OperationExecutionRecord;
@@ -24,7 +24,9 @@ import teetime.framework.AbstractConsumerStage;
 
 public class OpenTelemetryStage extends AbstractConsumerStage<IMonitoringRecord> {
 
-	private static volatile boolean initialized = false;
+	private static boolean initialized = false;
+	private int lastEss;
+	private final Stack<Span> lastSpan = new Stack<Span>();
 
 	public OpenTelemetryStage() {
 		synchronized (OpenTelemetryStage.class) {
@@ -49,22 +51,19 @@ public class OpenTelemetryStage extends AbstractConsumerStage<IMonitoringRecord>
 		return sdkTracerProvider;
 	}
 
-	private int lastEss;
-	private final Stack<Span> lastSpan = new Stack<Span>();
+	int i = 0;
 
 	@Override
 	protected void execute(final IMonitoringRecord record) throws Exception {
-		// System.out.println("Reading span: " + record);
 		if (record instanceof OperationExecutionRecord) {
 			final OperationExecutionRecord oer = (OperationExecutionRecord) record;
 
-			final Tracer tracer = GlobalOpenTelemetry.getTracer(oer.getHostname());
-
-			final Instant startTime = Instant.ofEpochMilli(oer.getTin());
+			final Tracer tracer = GlobalOpenTelemetry.getTracer("kieker-import");
 
 			// Start a new span for the operation
 			final String operationSignature = oer.getOperationSignature();
-			final SpanBuilder spanBuilder = tracer.spanBuilder(operationSignature).setStartTimestamp(startTime);
+			final SpanBuilder spanBuilder1 = tracer.spanBuilder(operationSignature);
+			final SpanBuilder spanBuilder = spanBuilder1.setStartTimestamp(oer.getTin(), TimeUnit.NANOSECONDS);
 			if (lastSpan != null && oer.getEss() > 0) {
 				spanBuilder.setParent(Context.current().with(lastSpan.peek()));
 			}
@@ -72,14 +71,10 @@ public class OpenTelemetryStage extends AbstractConsumerStage<IMonitoringRecord>
 			final Span span = spanBuilder.startSpan();
 
 			try (Scope scope = span.makeCurrent()) {
-				span.setAttribute("customAttribute", "5");
-
+				span.setAttribute("service.name", oer.getHostname());
 			} finally {
-				final Instant endTime = Instant.ofEpochMilli(oer.getTout());
-				span.end(endTime);
+				span.end(oer.getTout(), TimeUnit.NANOSECONDS);
 			}
-
-			// System.out.println("Ess: " + oer.getEss() + " " + lastEss);
 
 			if (oer.getEss() >= lastEss) {
 				lastEss++;
