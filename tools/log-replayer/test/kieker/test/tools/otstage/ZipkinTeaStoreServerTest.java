@@ -1,5 +1,7 @@
 package kieker.test.tools.otstage;
 
+import com.fasterxml.jackson.databind.JsonNode;
+
 import java.io.File;
 import java.io.IOException;
 import java.util.Objects;
@@ -33,8 +35,10 @@ public class ZipkinTeaStoreServerTest {
 			}
 		}
 
-		// Check Zipkin API for spans
-		final boolean spansCreated = ZipkinServerUtil.checkZipkinSpanValidity();
+		Thread.sleep(10000);
+
+		final JsonNode rootNode = ZipkinServerUtil.readRootNode();
+		final boolean spansCreated = ZipkinServerUtil.checkTreeValidity(rootNode);
 		Assertions.assertTrue(spansCreated, "Spans should be created in Zipkin");
 	}
 

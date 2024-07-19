@@ -1,5 +1,8 @@
 package kieker.test.tools.otstage;
 
+import com.fasterxml.jackson.core.JsonGenerationException;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
@@ -9,6 +12,8 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
+import java.net.ProtocolException;
 import java.net.URL;
 
 import org.junit.Assert;
@@ -69,9 +74,28 @@ public class ZipkinServerUtil {
 		return responseCode == HttpURLConnection.HTTP_OK;
 	}
 
-	public static boolean checkZipkinSpanValidity() throws IOException, InterruptedException {
-		Thread.sleep(10000);
+	public static boolean checkTreeValidity(final JsonNode rootNode) {
+		if (!rootNode.isArray() || rootNode.size() == 0) {
+			Assert.fail("No traces found in Zipkin.");
+		}
 
+		// Validate each trace and span according to expected structure and content
+		for (final JsonNode trace : rootNode) {
+			if (!trace.isArray() || trace.size() == 0) {
+				LOGGER.error("A trace with no spans was found.");
+				return false;
+			}
+			for (final JsonNode span : trace) {
+				if (!isValidSpan(span)) {
+					return false;
+				}
+			}
+		}
+		return true;
+	}
+
+	static JsonNode readRootNode()
+			throws MalformedURLException, IOException, ProtocolException, JsonProcessingException, JsonGenerationException, JsonMappingException {
 		// Zipkin API to check if traces were created
 		final URL url = new URL(ZIPKIN_URL + "api/v2/traces");
 		final HttpURLConnection connection = (HttpURLConnection) url.openConnection();
@@ -82,7 +106,7 @@ public class ZipkinServerUtil {
 		LOGGER.info("Zipkin server response code: " + responseCode);
 		if (responseCode != HttpURLConnection.HTTP_OK) {
 			LOGGER.error("Received HTTP error code from Zipkin server: " + responseCode);
-			return false;
+			throw new RuntimeException("Zipkin response was not ok");
 		}
 
 		final BufferedReader in = new BufferedReader(new InputStreamReader(connection.getInputStream()));
@@ -95,36 +119,11 @@ public class ZipkinServerUtil {
 		// LOGGER.info("Zipkin traces response: " + response);
 
 		final ObjectMapper objectMapper = new ObjectMapper();
-		try {
-			final JsonNode rootNode = objectMapper.readTree(response.toString());
+		final JsonNode rootNode = objectMapper.readTree(response.toString());
 
-			objectMapper.enable(SerializationFeature.INDENT_OUTPUT);
-			objectMapper.writeValue(new File("test.json"), rootNode);
-
-			if (!rootNode.isArray() || rootNode.size() == 0) {
-				Assert.fail("No traces found in Zipkin.");
-			}
-
-			// Validate each trace and span according to expected structure and content
-			for (final JsonNode trace : rootNode) {
-				if (!trace.isArray() || trace.size() == 0) {
-					LOGGER.error("A trace with no spans was found.");
-					return false;
-				}
-				for (final JsonNode span : trace) {
-					if (!isValidSpan(span)) {
-						return false;
-					}
-				}
-			}
-		} catch (final IOException e) {
-			LOGGER.error("IOException during Zipkin span check", e);
-			return false;
-		} catch (final Exception e) {
-			LOGGER.error("Unexpected exception during Zipkin span check", e);
-			return false;
-		}
-		return true;
+		objectMapper.enable(SerializationFeature.INDENT_OUTPUT);
+		objectMapper.writeValue(new File("test.json"), rootNode);
+		return rootNode;
 	}
 
 	private static boolean isValidSpan(final JsonNode span) {
