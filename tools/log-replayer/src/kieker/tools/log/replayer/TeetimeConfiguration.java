@@ -15,8 +15,17 @@
  ***************************************************************************/
 package kieker.tools.log.replayer;
 
+import java.util.concurrent.TimeUnit;
+
+import kieker.analysis.architecture.trace.execution.ExecutionRecordTransformationStage;
+import kieker.analysis.architecture.trace.reconstruction.TraceReconstructionStage;
+import kieker.analysis.generic.DynamicEventDispatcher;
+import kieker.analysis.generic.IEventMatcher;
+import kieker.analysis.generic.ImplementsEventMatcher;
 import kieker.analysis.generic.time.TimestampFilter;
 import kieker.common.record.IMonitoringRecord;
+import kieker.common.record.controlflow.OperationExecutionRecord;
+import kieker.model.repository.SystemModelRepository;
 import kieker.monitoring.core.configuration.ConfigurationConstants;
 import kieker.monitoring.core.configuration.ConfigurationFactory;
 import kieker.tools.log.replayer.stages.AdjustTimeStage;
@@ -85,8 +94,21 @@ public class TeetimeConfiguration extends Configuration {
 
 		configuration.setProperty(ConfigurationConstants.AUTO_SET_LOGGINGTSTAMP, parameter.isTimeRelative());
 
+		final DynamicEventDispatcher dispatcher = new DynamicEventDispatcher(null, false, true, false);
+		final IEventMatcher<? extends OperationExecutionRecord> operationExecutionRecordMatcher = new ImplementsEventMatcher<>(OperationExecutionRecord.class, null);
+		dispatcher.registerOutput(operationExecutionRecordMatcher);
+		this.connectPorts(this.counter.getOutputPort(), dispatcher.getInputPort());
+
+		final SystemModelRepository repository = new SystemModelRepository();
+		final ExecutionRecordTransformationStage executionRecordTransformationStage = new ExecutionRecordTransformationStage(repository);
+
+		this.connectPorts(operationExecutionRecordMatcher.getOutputPort(), executionRecordTransformationStage.getInputPort());
+
+		final TraceReconstructionStage traceReconstructionStage = new TraceReconstructionStage(repository, TimeUnit.MILLISECONDS, false, Long.MAX_VALUE);
+		this.connectPorts(executionRecordTransformationStage.getOutputPort(), traceReconstructionStage.getInputPort());
+
 		final OpenTelemetryStage otstage = new OpenTelemetryStage();
-		this.connectPorts(this.counter.getOutputPort(), otstage.getInputPort());
+		this.connectPorts(traceReconstructionStage.getExecutionTraceOutputPort(), otstage.getInputPort());
 
 		// final AbstractConsumerStage<IMonitoringRecord> consumer = new DataSink(configuration);
 		// this.connectPorts(this.counter.getOutputPort(), consumer.getInputPort());

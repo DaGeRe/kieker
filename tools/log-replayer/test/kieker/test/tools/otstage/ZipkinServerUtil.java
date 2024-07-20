@@ -116,7 +116,7 @@ public class ZipkinServerUtil {
 	static JsonNode readRootNode()
 			throws MalformedURLException, IOException, ProtocolException, JsonProcessingException, JsonGenerationException, JsonMappingException {
 		// Zipkin API to check if traces were created
-		final URL url = new URL(ZIPKIN_URL + "api/v2/traces");
+		final URL url = new URL(ZIPKIN_URL + "api/v2/traces?lookback=604800000&limit=15");
 		final HttpURLConnection connection = (HttpURLConnection) url.openConnection();
 		connection.setRequestMethod("GET");
 
