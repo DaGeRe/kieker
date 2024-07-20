@@ -78,10 +78,11 @@ public class ZipkinServerUtil {
 	public static int getSpanCount(final JsonNode rootNode) {
 		int spans = 0;
 		for (final JsonNode node : rootNode) {
-			System.out.println(node.getNodeType() + " " + node);
 			if (node.getNodeType() == JsonNodeType.ARRAY) {
 				spans += getSpanCount(node);
+				System.out.println();
 			} else if (node.getNodeType() == JsonNodeType.OBJECT) {
+				System.out.println(node.getNodeType() + " " + node);
 				final JsonNode traceId = node.get("traceId");
 				final JsonNode id = node.get("id");
 				final JsonNode name = node.get("name");
