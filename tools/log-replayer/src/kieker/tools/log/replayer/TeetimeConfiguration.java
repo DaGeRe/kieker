@@ -34,7 +34,7 @@ import kieker.tools.log.replayer.stages.time.adjuster.BranchingRecordTimeAdjuste
 import kieker.tools.log.replayer.stages.time.adjuster.FlowEventTimeAdjuster;
 import kieker.tools.log.replayer.stages.time.adjuster.OperationExecutionRecordTimeAdjuster;
 import kieker.tools.source.LogsReaderCompositeStage;
-import kieker.tools.trace.otexporter.OpenTelemetryStage;
+import kieker.tools.trace.otexporter.OpenTelemetryZipkinStage;
 
 import teetime.framework.Configuration;
 import teetime.framework.OutputPort;
@@ -107,7 +107,7 @@ public class TeetimeConfiguration extends Configuration {
 		final TraceReconstructionStage traceReconstructionStage = new TraceReconstructionStage(repository, TimeUnit.MILLISECONDS, false, Long.MAX_VALUE);
 		this.connectPorts(executionRecordTransformationStage.getOutputPort(), traceReconstructionStage.getInputPort());
 
-		final OpenTelemetryStage otstage = new OpenTelemetryStage();
+		final OpenTelemetryZipkinStage otstage = new OpenTelemetryZipkinStage();
 		this.connectPorts(traceReconstructionStage.getExecutionTraceOutputPort(), otstage.getInputPort());
 
 		// final AbstractConsumerStage<IMonitoringRecord> consumer = new DataSink(configuration);

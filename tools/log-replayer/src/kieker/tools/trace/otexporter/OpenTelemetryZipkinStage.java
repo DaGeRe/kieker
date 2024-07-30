@@ -22,14 +22,14 @@ import io.opentelemetry.sdk.trace.SdkTracerProvider;
 import io.opentelemetry.sdk.trace.export.BatchSpanProcessor;
 import teetime.framework.AbstractConsumerStage;
 
-public class OpenTelemetryStage extends AbstractConsumerStage<ExecutionTrace> {
+public class OpenTelemetryZipkinStage extends AbstractConsumerStage<ExecutionTrace> {
 
 	private static boolean initialized = false;
 	private int lastEss;
 	private final Stack<Span> lastSpan = new Stack<Span>();
 
-	public OpenTelemetryStage() {
-		synchronized (OpenTelemetryStage.class) {
+	public OpenTelemetryZipkinStage() {
+		synchronized (OpenTelemetryZipkinStage.class) {
 			if (!initialized) {
 				createTracerProvider("kieker-data");
 				initialized = true;
