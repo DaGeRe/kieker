@@ -59,7 +59,7 @@ public class OpenTelemetryGRPCStage extends AbstractConsumerStage<ExecutionTrace
 
 	private int i = 0;
 	private int serviceIndex = 0;
-	private final Map<String, Integer> serviceIndexMap = new HashMap<>();
+	private final Map<String, String> serviceIndexMap = new HashMap<>();
 
 	@Override
 	protected void execute(final ExecutionTrace trace) throws Exception {
@@ -88,9 +88,9 @@ public class OpenTelemetryGRPCStage extends AbstractConsumerStage<ExecutionTrace
 			try (Scope scope = span.makeCurrent()) {
 				final String serviceName = execution.getAllocationComponent().getExecutionContainer().getName();
 				span.setAttribute("service.name", serviceName);
-				Integer serviceInstanceId = serviceIndexMap.get(serviceName);
+				String serviceInstanceId = serviceIndexMap.get(serviceName);
 				if (serviceInstanceId == null) {
-					serviceInstanceId = serviceIndex++;
+					serviceInstanceId = Integer.toString(serviceIndex++);
 					serviceIndexMap.put(serviceName, serviceInstanceId);
 				}
 				span.setAttribute("service.instance.id", serviceInstanceId);
