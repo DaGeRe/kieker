@@ -5,6 +5,7 @@ import java.util.Map;
 import java.util.Stack;
 import java.util.concurrent.TimeUnit;
 
+import kieker.common.configuration.Configuration;
 import kieker.common.util.signature.ClassOperationSignaturePair;
 import kieker.model.system.model.Execution;
 import kieker.model.system.model.ExecutionTrace;
@@ -18,6 +19,7 @@ import io.opentelemetry.api.trace.Tracer;
 import io.opentelemetry.context.Context;
 import io.opentelemetry.context.Scope;
 import io.opentelemetry.exporter.otlp.trace.OtlpGrpcSpanExporter;
+import io.opentelemetry.exporter.zipkin.ZipkinSpanExporter;
 import io.opentelemetry.sdk.OpenTelemetrySdk;
 import io.opentelemetry.sdk.resources.Resource;
 import io.opentelemetry.sdk.trace.SdkTracerProvider;
@@ -25,36 +27,80 @@ import io.opentelemetry.sdk.trace.export.BatchSpanProcessor;
 import io.opentelemetry.sdk.trace.export.SpanExporter;
 import teetime.framework.AbstractConsumerStage;
 
-public class OpenTelemetryGRPCStage extends AbstractConsumerStage<ExecutionTrace> {
+public class OpenTelemetryExporterStage extends AbstractConsumerStage<ExecutionTrace> {
+
+	public enum ExportType {
+		GRPC, ZIPKIN;
+	}
+
+	public static final String PREFIX = OpenTelemetryExporterStage.class.getName() + ".";
+
+	/**
+	 * The type of the export, currently supported: Zipkin and GRPC
+	 */
+	public static final String EXPORT_TYPE = "ExportType";
+
+	/**
+	 * The url, for example http://localhost:417/
+	 */
+	public static final String EXPORT_URL = "ExportURL";
+	/** The fully qualified name of the queue to be used for the records. */
+	public static final String RECORD_QUEUE_FQN = "RecordQueueFQN";
 
 	private static boolean initialized = false;
 	private int lastEss;
 	private final Stack<Span> lastSpan = new Stack<Span>();
 
-	public OpenTelemetryGRPCStage() {
-		synchronized (OpenTelemetryGRPCStage.class) {
+	private final ExportType exportType;
+	private final String exportUrl;
+
+	public OpenTelemetryExporterStage(final Configuration configuration) {
+
+		String typeParameter = configuration.getStringProperty(EXPORT_TYPE);
+		if ("zipkin".equals(typeParameter)) {
+			exportType = ExportType.ZIPKIN;
+		} else if ("GRPC".equals(typeParameter)) {
+			exportType = ExportType.GRPC;
+		} else {
+			throw new RuntimeException("Please specifiy accepted " + EXPORT_TYPE + " parameter");
+		}
+		exportUrl = configuration.getStringProperty(EXPORT_URL);
+
+		synchronized (OpenTelemetryExporterStage.class) {
 			if (!initialized) {
 				createTracerProvider("kieker-data");
 				initialized = true;
 			}
 		}
+
 	}
 
 	private SdkTracerProvider createTracerProvider(final String serviceName) {
-		final Resource resource = Resource.getDefault().merge(Resource
-				.create(Attributes.builder().put(AttributeKey.stringKey("service.name"), serviceName).build()));
+		final Resource resource = Resource.getDefault().merge(
+				Resource.create(Attributes.builder().put(AttributeKey.stringKey("service.name"), serviceName).build()));
 
-		final SpanExporter spanExporter = OtlpGrpcSpanExporter.builder()
-				 .setEndpoint("http://localhost:55678/")
-				.build();
+		final SpanExporter spanExporter = getSpanExporter();
+
 		final SdkTracerProvider sdkTracerProvider = SdkTracerProvider.builder().setResource(resource)
-				.addSpanProcessor(BatchSpanProcessor
-						.builder(spanExporter)
-						.build())
-				.build();
+				.addSpanProcessor(BatchSpanProcessor.builder(spanExporter).build()).build();
 
 		OpenTelemetrySdk.builder().setTracerProvider(sdkTracerProvider).buildAndRegisterGlobal();
 		return sdkTracerProvider;
+	}
+
+	private SpanExporter getSpanExporter() {
+		final SpanExporter spanExporter;
+		switch (exportType) {
+		case ZIPKIN:
+			spanExporter = ZipkinSpanExporter.builder().setEndpoint(exportUrl).build();
+			break;
+		case GRPC:
+			spanExporter = OtlpGrpcSpanExporter.builder().setEndpoint(exportUrl).build();
+			break;
+		default:
+			throw new RuntimeException("Unsupported span exporter");
+		}
+		return spanExporter;
 	}
 
 	private int i = 0;
@@ -66,7 +112,8 @@ public class OpenTelemetryGRPCStage extends AbstractConsumerStage<ExecutionTrace
 		for (final Execution execution : trace.getTraceAsSortedExecutionSet()) {
 			final String fullClassname = execution.getOperation().getComponentType().getFullQualifiedName().intern();
 
-			final String operationSignature = ClassOperationSignaturePair.createOperationSignatureString(fullClassname, execution.getOperation().getSignature());
+			final String operationSignature = ClassOperationSignaturePair.createOperationSignatureString(fullClassname,
+					execution.getOperation().getSignature());
 
 			final Tracer tracer = GlobalOpenTelemetry.getTracer("kieker-import");
 
