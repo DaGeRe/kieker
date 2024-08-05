@@ -5,11 +5,13 @@ import java.util.Map;
 import java.util.Stack;
 import java.util.concurrent.TimeUnit;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import kieker.common.configuration.Configuration;
 import kieker.common.util.signature.ClassOperationSignaturePair;
 import kieker.model.system.model.Execution;
 import kieker.model.system.model.ExecutionTrace;
-
 import io.opentelemetry.api.GlobalOpenTelemetry;
 import io.opentelemetry.api.common.AttributeKey;
 import io.opentelemetry.api.common.Attributes;
@@ -28,7 +30,9 @@ import io.opentelemetry.sdk.trace.export.SpanExporter;
 import teetime.framework.AbstractConsumerStage;
 
 public class OpenTelemetryExporterStage extends AbstractConsumerStage<ExecutionTrace> {
-
+	
+	private static final Logger LOGGER = LoggerFactory.getLogger(OpenTelemetryExporterStage.class);
+	
 	public enum ExportType {
 		GRPC, ZIPKIN;
 	}
@@ -121,36 +125,16 @@ public class OpenTelemetryExporterStage extends AbstractConsumerStage<ExecutionT
 			final SpanBuilder spanBuilder = spanBuilder1.setStartTimestamp(execution.getTin(), TimeUnit.NANOSECONDS);
 			if (lastSpan != null && execution.getEss() > 0) {
 
-				System.out.println("Parent: " + execution.getEss() + " " + execution.getEoi());
+				LOGGER.debug("Parent: " + execution.getEss() + " " + execution.getEoi());
 
 				spanBuilder.setParent(Context.current().with(lastSpan.peek()));
 			} else {
-				System.out.println("Root span");
+				LOGGER.info("Root span");
 			}
 
-			System.out.println(spanBuilder.getClass());
+			final Span span = createSpan(execution, fullClassname, spanBuilder);
 
-			final Span span = spanBuilder.startSpan();
-
-			try (Scope scope = span.makeCurrent()) {
-				final String serviceName = execution.getAllocationComponent().getExecutionContainer().getName();
-				span.setAttribute("service.name", serviceName);
-				String serviceInstanceId = serviceIndexMap.get(serviceName);
-				if (serviceInstanceId == null) {
-					serviceInstanceId = Integer.toString(serviceIndex++);
-					serviceIndexMap.put(serviceName, serviceInstanceId);
-				}
-				span.setAttribute("service.instance.id", serviceInstanceId);
-				span.setAttribute("code.namespace", fullClassname);
-				span.setAttribute("code.function", execution.getOperation().getSignature().getName());
-				span.setAttribute("telemetry.sdk.language", "java");
-				span.setAttribute("explorviz.token.id", "mytokenvalue");
-				span.setAttribute("explorviz.token.secret", "mytokensecret");
-			} finally {
-				span.end(execution.getTout(), TimeUnit.NANOSECONDS);
-			}
-
-			System.out.println("Spans added: " + ++i);
+			LOGGER.debug("Spans added: " + ++i);
 
 			if (execution.getEss() >= lastEss) {
 				lastEss++;
@@ -164,5 +148,28 @@ public class OpenTelemetryExporterStage extends AbstractConsumerStage<ExecutionT
 				lastSpan.add(span);
 			}
 		}
+	}
+
+	private Span createSpan(final Execution execution, final String fullClassname, final SpanBuilder spanBuilder) {
+		final Span span = spanBuilder.startSpan();
+
+		try (Scope scope = span.makeCurrent()) {
+			final String serviceName = execution.getAllocationComponent().getExecutionContainer().getName();
+			span.setAttribute("service.name", serviceName);
+			String serviceInstanceId = serviceIndexMap.get(serviceName);
+			if (serviceInstanceId == null) {
+				serviceInstanceId = Integer.toString(serviceIndex++);
+				serviceIndexMap.put(serviceName, serviceInstanceId);
+			}
+			span.setAttribute("service.instance.id", serviceInstanceId);
+			span.setAttribute("code.namespace", fullClassname);
+			span.setAttribute("code.function", execution.getOperation().getSignature().getName());
+			span.setAttribute("telemetry.sdk.language", "java");
+			span.setAttribute("explorviz.token.id", "mytokenvalue");
+			span.setAttribute("explorviz.token.secret", "mytokensecret");
+		} finally {
+			span.end(execution.getTout(), TimeUnit.NANOSECONDS);
+		}
+		return span;
 	}
 }
