@@ -5,13 +5,14 @@ import java.util.Map;
 import java.util.Stack;
 import java.util.concurrent.TimeUnit;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import kieker.common.configuration.Configuration;
 import kieker.common.util.signature.ClassOperationSignaturePair;
 import kieker.model.system.model.Execution;
 import kieker.model.system.model.ExecutionTrace;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import io.opentelemetry.api.GlobalOpenTelemetry;
 import io.opentelemetry.api.common.AttributeKey;
 import io.opentelemetry.api.common.Attributes;
@@ -30,9 +31,9 @@ import io.opentelemetry.sdk.trace.export.SpanExporter;
 import teetime.framework.AbstractConsumerStage;
 
 public class OpenTelemetryExporterStage extends AbstractConsumerStage<ExecutionTrace> {
-	
+
 	private static final Logger LOGGER = LoggerFactory.getLogger(OpenTelemetryExporterStage.class);
-	
+
 	public enum ExportType {
 		GRPC, ZIPKIN;
 	}
@@ -42,12 +43,12 @@ public class OpenTelemetryExporterStage extends AbstractConsumerStage<ExecutionT
 	/**
 	 * The type of the export, currently supported: Zipkin and GRPC
 	 */
-	public static final String EXPORT_TYPE = "ExportType";
+	public static final String EXPORT_TYPE = PREFIX + "ExportType";
 
 	/**
 	 * The url, for example http://localhost:417/
 	 */
-	public static final String EXPORT_URL = "ExportURL";
+	public static final String EXPORT_URL = PREFIX + "ExportURL";
 	/** The fully qualified name of the queue to be used for the records. */
 	public static final String RECORD_QUEUE_FQN = "RecordQueueFQN";
 
@@ -60,13 +61,13 @@ public class OpenTelemetryExporterStage extends AbstractConsumerStage<ExecutionT
 
 	public OpenTelemetryExporterStage(final Configuration configuration) {
 
-		String typeParameter = configuration.getStringProperty(EXPORT_TYPE);
+		final String typeParameter = configuration.getStringProperty(EXPORT_TYPE);
 		if ("zipkin".equals(typeParameter)) {
 			exportType = ExportType.ZIPKIN;
 		} else if ("GRPC".equals(typeParameter)) {
 			exportType = ExportType.GRPC;
 		} else {
-			throw new RuntimeException("Please specifiy accepted " + EXPORT_TYPE + " parameter");
+			throw new RuntimeException("Please specifiy accepted " + EXPORT_TYPE + " parameter, was " + typeParameter);
 		}
 		exportUrl = configuration.getStringProperty(EXPORT_URL);
 
@@ -76,7 +77,6 @@ public class OpenTelemetryExporterStage extends AbstractConsumerStage<ExecutionT
 				initialized = true;
 			}
 		}
-
 	}
 
 	private SdkTracerProvider createTracerProvider(final String serviceName) {

@@ -1,7 +1,5 @@
 package moobench.tools.receiver;
 
-import teetime.framework.Configuration;
-
 import java.util.concurrent.TimeUnit;
 
 import kieker.analysis.architecture.trace.execution.ExecutionRecordTransformationStage;
@@ -14,18 +12,19 @@ import kieker.analysis.generic.source.rewriter.NoneTraceMetadataRewriter;
 import kieker.analysis.generic.source.tcp.MultipleConnectionTcpSourceStage;
 import kieker.common.record.controlflow.OperationExecutionRecord;
 import kieker.model.repository.SystemModelRepository;
-import kieker.monitoring.core.configuration.ConfigurationFactory;
 import kieker.tools.trace.otelexporter.OpenTelemetryExporterStage;
+
+import teetime.framework.Configuration;
 
 public class OpenTelemetryExportConfiguration extends Configuration {
 
-	public OpenTelemetryExportConfiguration(final int inputPort, final int bufferSize, kieker.common.configuration.Configuration configuration) {
-		MultipleConnectionTcpSourceStage source = new MultipleConnectionTcpSourceStage(inputPort, bufferSize, new NoneTraceMetadataRewriter());
+	public OpenTelemetryExportConfiguration(final int inputPort, final int bufferSize, final kieker.common.configuration.Configuration configuration) {
+		final MultipleConnectionTcpSourceStage source = new MultipleConnectionTcpSourceStage(inputPort, bufferSize, new NoneTraceMetadataRewriter());
 
-		CountingStage counter = new CountingStage(false, 10000);
-		
+		final CountingStage counter = new CountingStage(false, 10000);
+
 		connectPorts(source.getOutputPort(), counter.getInputPort());
-		
+
 		final DynamicEventDispatcher dispatcher = new DynamicEventDispatcher(null, false, true, false);
 		final IEventMatcher<? extends OperationExecutionRecord> operationExecutionRecordMatcher = new ImplementsEventMatcher<>(OperationExecutionRecord.class, null);
 		dispatcher.registerOutput(operationExecutionRecordMatcher);
@@ -42,6 +41,5 @@ public class OpenTelemetryExportConfiguration extends Configuration {
 		final OpenTelemetryExporterStage otstage = new OpenTelemetryExporterStage(configuration);
 		this.connectPorts(traceReconstructionStage.getExecutionTraceOutputPort(), otstage.getInputPort());
 
-		
 	}
 }
